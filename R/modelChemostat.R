@@ -5,7 +5,7 @@ library("deSolve")
 library(tictoc)
 
 alpha = 0.25
-colOsmo = rgb(0.5,0,0.5,alpha=alpha)
+colOsmo = rgb(165/256,42/256,42/256,alpha=alpha)
 colPhoto = rgb(0,1,0,alpha=alpha)
 colN = rgb(0,0,1,alpha=alpha)
 colMixo = rgb(1,0.5,0.5,alpha=alpha)
@@ -938,8 +938,9 @@ calcSheldonFit = function(sim, bPlot=TRUE) {
                 xlab="Carbon mass (${\\mu}$gC/l)",
                 ylab="Sheldon biomass ($\\mu$gC/l)")
     B[B==Bmin]=1e-10
-    lines(m, B, lwd=3)
+    lines(sim$p$m, B, lwd=3)
     #lines(m, rep(Bmean,sim$p$n),lwd=1)
+    m = 10^seq(-9,1,length.out=500)
     Bfit = f(10^theta[1], theta[2], 10^theta[3], 10^theta[4])
     Bfit[Bfit==Bmin] = 1e-10
     lines(m, Bfit, lty=dotted)

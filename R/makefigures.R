@@ -52,9 +52,9 @@ plotAll = function() {
   
   pdfplot("../HTL.pdf", plotHTL, height=2*height)
   
-  pdfplot("../Temperature.pdf", plotTemperature, height=2*height)
+  pdfplot("../Temperature.pdf", plotTemperature, width=doublewidth, height=2*height)
   
-  #system("cp ../*pdf ../dropbox")
+  #system("cp ../*pdf ../../dropbox")
 }
 
 convertVolume2Mass = function(vol, taxon="other") {
@@ -267,7 +267,8 @@ plot_aL = function() {
   ixDiatom = data$taxon=="diatom"
   
   #form = formula(log(A) ~ log( a*C^(2/3) * Cmax*C / (a*C^(2/3) + Cmax*C)))
-  form = formula(log(aL) ~ log( alphaL/r * (1 - exp(-r/rStar) ) ))
+  delta = parameters()$delta
+  form = formula(log(aL) ~ log( alphaL/r * (1 - exp(-r/rStar) ) * (1-3*delta/r)  ))
   
   fit = nls(form,
             data = data,
@@ -292,7 +293,7 @@ plot_aL = function() {
   loglogpanel(xlim = c(0.1, 300), 
               ylim = c(0.5*min(data$aL[!is.na(data$aL)]), 2*max(data$aL[!is.na(data$aL)])),
               xlab="Cell radius ($\\mu$m)",
-              ylab="Affinity for light, $\\textit{a_L}$ (day$\\cdot \\mu$ mol photons m$^{-2}s^{-1}\\cdot \\mu$gC)$^{-1}$")
+              ylab="Light affinity $\\textit{a_L}$ (day$\\cdot \\mu$ mol photons m$^{-2}s^{-1}\\cdot \\mu$g$_C)^{-1}$")
   points(data$r[!ixDiatom], data$aL[!ixDiatom],pch=15, col="darkgreen")
   points(data$r[ixDiatom], data$aL[ixDiatom],pch=16, col="darkgreen")
   points(data$r[data$source=="Taguchi"], data$aL[data$source=="Taguchi"], pch=17, col="darkgreen")
@@ -302,6 +303,7 @@ plot_aL = function() {
   
   lines(r, coef(fit)[[2]]/r, lty=dotted)
   lines(r, coef(fit)[[2]]/coef(fit)[[1]]*r/r, lty=dotted)
+  lines(r, coef(fit)[[2]]/coef(fit)[[1]] * (1-3*delta/r), lty=dotted)
   
   legend(x="topright", bty="n",
          legend=c("Diatoms", "Other phototrophs"),
@@ -957,7 +959,7 @@ plotRstar = function() {
   tightaxes()
   defaultplot()
   loglogpanel(xlim=r, 
-              ylim=c(0.0005,1000),
+              ylim=c(0.0001,1000),
               xlab = "Cell radius ($\\mu$m)",
               ylab = "Limiting concentration ($\\mu$M) or ($\\mu$E/m$^2$/s)")
   
@@ -1063,7 +1065,7 @@ panelStrategies = function(p,N,L,Bsheldon,DOC,y ,
             rgb(1,0.5,0.5,alpha=alpha),
             rgb(0,1,0,alpha=alpha),
             rgb(0,0,1,alpha=alpha),
-            rgb(0.5,0,0.5,alpha=alpha),
+            rgb(165/256,42/256,42/256,alpha=alpha),
             rgb(1,0,1,alpha=alpha))
   
   #defaultplot()
@@ -1221,7 +1223,7 @@ plotSimulationExamples = function() {
            y.intersp = 0.7,
            legend=c(TeX(sprintf("DIN: %2.2f $\\mu$M", N/14)) ,
                     TeX(sprintf("DOC: %2.2f $\\mu$M", DOC/12))))
-
+    
     #func = calcFunctionsChemostat(sim$p, sim$rates, sim$p$L, sim$N, sim$B)
     func = calcFunctions(sim)
     sx = "bottomright"
@@ -1237,7 +1239,7 @@ plotSimulationExamples = function() {
     )
     
     makepanellabel()
-
+    
     box()
   }
   
@@ -1522,10 +1524,10 @@ plotFunctions = function(L=c(20, 100), n=10) {
     makepanellabel()
     
     
-    # N
+    # Concentrations:
     if (yaxis)
       ylab = "Concentrations"
-    loglogpanel(xlim=d, ylim=c(0.01,500), xaxis=FALSE, yaxis=yaxis,
+    loglogpanel(xlim=d, ylim=c(0.01,1000), xaxis=FALSE, yaxis=yaxis,
                 ylab=ylab)
     lines(F$d, F$N/14, lwd=2, col="blue")
     lines(F$d, F$DOC/12, lwd=2, col="brown")
@@ -1534,7 +1536,7 @@ plotFunctions = function(L=c(20, 100), n=10) {
       legend("topleft",bty="n", cex=cex,
              legend=c(TeX("N ($\\mu$M)"),TeX("DOC ($\\mu$M)")),lwd=2,col=c("blue", "brown","darkgreen"))
       legend("topright",bty="n", cex=cex,
-                    legend=TeX("Chl ($\\mu$g/l)"),lwd=2,col="darkgreen")
+             legend=TeX("Chl ($\\mu$g/l)"),lwd=2,col="darkgreen")
     }
     makepanellabel()
     #DOC
@@ -1961,7 +1963,7 @@ plotHTL = function(d=dEutrophic, L=LEutrophic) {
   mHTL = seq(0,0.5, length.out=25)
   
   defaultplot(mfcol=c(2,1))
-  loglogpanel(xlim=p$m, ylim=c(1e-2,100), 
+  loglogpanel(xlim=p$m, ylim=c(1,100), 
               xlab = 'Mass ($\\mu g_C$)',
               ylab = 'Sheldon biomass ($\\mu$gC/l)')
   B = NA
@@ -1972,7 +1974,7 @@ plotHTL = function(d=dEutrophic, L=LEutrophic) {
     p$mortHTL = mHTL[i]
     sim = simulateChemostat(p)
     if (sum(i == ix) != 0)
-      lines(p$m, sim$B / p$m[2]*p$m[1], lwd=1+i/length(mHTL))
+      lines(p$m, sim$B / log(p$Delta), lwd=1+i/length(mHTL))
     
     func = calcFunctionsChemostat(p,sim$rates,p$L,sim$N,sim$B)
     B[i] = sum(sim$B)
@@ -1996,65 +1998,91 @@ plotHTL = function(d=dEutrophic, L=LEutrophic) {
   
 }
 
-plotTemperature = function(d=dEutrophic, L=LEutrophic) {
-  p = parametersChemostat(parameters(n=50))
-  p$d = d
-  p$L = L
+plotTemperature = function(n=50) {
   
-  T = seq(0,25,length.out=30)
-  defaultplot(mfcol=c(2,1))
-  #  loglogpanel(xlim=p$m, ylim=c(1e-1,100), 
-  #             xlab = 'Cell mass ($\\mu g_C$)',
-  #              ylab = 'Sheldon biomass ($\\mu$gC/l)')
-  
-  B = NA
-  NPP = NA
-  prodHTL = NA
-  jTot = matrix(NA,length(T),p$n)
-  ix = floor(seq(1, length(T), length.out=5))
-  for (i in 1:length(T)) {
-    p$T = T[i]
-    sim = simulateChemostat(p)
-    #   if (sum(i == ix) != 0)
-    #      lines(p$m, sim$B / p$m[2]*p$m[1], lwd=1+i/length(T))
+  panelTemperature = function(d=dEutrophic, L=LEutrophic, bLegend=TRUE) {
+    p = parametersChemostat(parameters(n))
+    p$d = d
+    p$L = L
+    T = seq(0,25,length.out=30)
+    #
+    # Simulate temperature increase:
+    #
+    B = NA
+    Bsheldon = matrix(0, length(T), n)
+    NPP = NA
+    prodHTL = NA
+    jTot = matrix(NA,length(T),p$n)
+    ix = floor(seq(1, length(T), length.out=5))
+    for (i in 1:length(T)) {
+      p$T = T[i]
+      sim = simulateChemostat(p)
+      #    if (sum(i == ix) != 0)
+      Bsheldon[i,] = sim$B / log(p$Delta)
+      #          lines(p$m, sim$B / p$m[2]*p$m[1], lwd=1+i/length(T))
+      
+      func = calcFunctionsChemostat(p,sim$rates,p$L,sim$N,sim$B)
+      B[i] = sum(sim$B)
+      NPP[i] = func$prodCnet
+      prodHTL[i] = func$prodHTL
+      r = getFrates(p)
+      jTot[i,] = r$jTot
+    }
     
-    func = calcFunctionsChemostat(p,sim$rates,p$L,sim$N,sim$B)
-    B[i] = sum(sim$B)
-    NPP[i] = func$prodCnet
-    prodHTL[i] = func$prodHTL
-    r = getFrates(p)
-    jTot[i,] = r$jTot
+    
+    #
+    # Q10's:
+    #
+    ylab = ""
+    if (bLegend)
+      ylab = "Division rate  $\\textit{j}$_{net} (yr^{-1})"
+    semilogypanel(xlim=T,ylim=c(0.05,2),
+                  ylab=ylab, xaxis=FALSE, yaxis=bLegend)
+    # Reference lines:
+    lines(T, 0.3*fTemp(1.25,T,0),col="red")
+    lines(T, 0.3*fTemp(1.5,T,0),col="red")
+    lines(T, 0.3*fTemp(2,T,0),col="red")
+    # Actual growth responses:
+    ix = seq(7,45,by=10)
+    for (i in 1:length(ix))
+      lines(T, jTot[,ix[i]], lwd=i/2)
+    makepanellabel()
+    #
+    # Functions:
+    #
+    semilogypanel(xlim=T, ylim=c(1,2500),
+                  xlab="Temperature", yaxis=bLegend)
+    
+    lines(T, B, lwd=2)
+    lines(T, NPP, col='green', lwd=2)
+    lines(T, prodHTL, col='red',lwd=2)
+    
+    makepanellabel()
+    
+    if (bLegend) {
+      legend(x="bottomright", bty="n", cex=cex,
+             legend=c(TeX('Biomass (${\\mu}g_C$/l)'), 
+                      TeX('NPP (g_C/yr/m^2)'), 
+                      TeX('prod HTL (g_C/yr/m^2)')),
+             col=c('black','green','red'), lwd=rep(2,3))
+    }
+    #
+    # Spectra
+    #
+    if (bLegend)
+      ylab = 'Sheldon biomass ($\\mu$gC/l)'
+    loglogpanel(xlim=p$m, ylim=c(.1,100), 
+                xlab = 'Cell mass ($\\mu g_C$)',
+                ylab = ylab, yaxis=bLegend)
+    for (i in seq(1,length(T),by=5))
+      lines(p$m, Bsheldon[i,], lwd=1+i/length(T))
+    makepanellabel()
   }
-  #
-  # Q10's:
-  #
-  semilogypanel(xlim=T,ylim=c(0.1,2),
-                ylab="Division rate  $\\textit{j}$_{tot} (yr^{-1})", xaxis=FALSE)
-  # Reference lines:
-  lines(T, 0.3*fTemp(1.25,T,0),col="red")
-  lines(T, 0.3*fTemp(1.5,T,0),col="red")
-  lines(T, 0.3*fTemp(2,T,0),col="red")
-  # Actual growth responses:
-  ix = seq(5,45,by=10)
-  for (i in 1:length(ix))
-    lines(T, jTot[,ix[i]], lwd=i/2)
-  makepanellabel()
-  #
-  # Functions:
-  #
-  defaultpanel(xlim=T, ylim=c(0,1400),
-               xlab="Temperature")
   
-  lines(T, B, lwd=2)
-  lines(T, NPP, col='green', lwd=2)
-  lines(T, prodHTL, col='red',lwd=2)
+  defaultplot(mfcol=c(3,2))
+  panelTemperature(dEutrophic)
+  panelTemperature(dOligotrophic, bLegend=FALSE)
   
-  #makepanellabel()
-  legend(x="topleft", bty="n", cex=cex,
-         legend=c(TeX('Biomass (${\\mu}g_C$/l)'), 
-                  TeX('NPP (g_C/yr/m^2)'), 
-                  TeX('prod HTL (g_C/yr/m^2)')),
-         col=c('black','green','red'), lwd=rep(2,3))
 }
 
 

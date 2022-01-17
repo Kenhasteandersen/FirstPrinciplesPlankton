@@ -1,5 +1,5 @@
-%p = setupGeneralistsOnly(10,true);
-%p = parametersGlobal(p);
+%p = setupGeneralistsOnly(20,true);
+%p = parametersGlobal(p,2);
 
 %sim = simulateGlobal(p);
 
