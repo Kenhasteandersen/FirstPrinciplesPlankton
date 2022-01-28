@@ -121,7 +121,16 @@ SeasonalLight = function(p,t) {
 # }
 
 loadNUMmodel = function() {
-  dyn.load("../lib/NUMmodel_R.so")
+  sys=Sys.info()['sysname']
+  
+  if (sys=='Darwin') 
+    sLibname = '../lib/libNUMmodel_OSX_R.so'
+  if (sys=='Linux') 
+    sLibname = '../lib/libNUMmodel_linux_R.so'
+  if (sys=='windows')
+    sLibname = '../lib/libNUMmodel_R.dll'
+
+  dyn.load(sLibname)
 }
 
 derivativeF = function(t,y,p) {
