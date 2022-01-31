@@ -5,7 +5,7 @@ library("deSolve")
 library(tictoc)
 
 alpha = 0.25
-colOsmo = rgb(0.5,0,0.5,alpha=alpha)
+colOsmo = rgb(165/256,42/256,42/256,alpha=alpha)
 colPhoto = rgb(0,1,0,alpha=alpha)
 colN = rgb(0,0,1,alpha=alpha)
 colMixo = rgb(1,0.5,0.5,alpha=alpha)
@@ -35,29 +35,29 @@ parametersChemostat = function(p=parameters()) {
 # Seasonal variation in exchange rate as a function of latitude (degrees)
 # and time (days)
 #
-SeasonalExchange = function(latitude, t) {
-  t = t %% 365
-  
-  dmax = 0.05*(1+tanh(0.05*(latitude-40)))
-  dsummer = 0.01
-  tspring = 180 * latitude/120
-  tautumn = 200 + 180 *(90-latitude)/90
-  widthautumn = 1
-  
-  summer = 1-0.5*(1+tanh(8*((t-tspring)/365*2*pi)))
-  winter = 1-0.5*(1 - tanh(widthautumn*((t-tautumn)/365*2*pi)))
-  spring = 1-0.5*(1 - tanh(widthautumn*(((t+365)-tautumn)/365*2*pi)))
-  summer = pmin(summer, spring)
-  
-  d = dsummer + dmax*(winter + summer)
-}
+# SeasonalExchange = function(latitude, t) {
+#   t = t %% 365
+#   
+#   dmax = 0.05*(1+tanh(0.05*(latitude-40)))
+#   dsummer = 0.01
+#   tspring = 180 * latitude/120
+#   tautumn = 200 + 180 *(90-latitude)/90
+#   widthautumn = 1
+#   
+#   summer = 1-0.5*(1+tanh(8*((t-tspring)/365*2*pi)))
+#   winter = 1-0.5*(1 - tanh(widthautumn*((t-tautumn)/365*2*pi)))
+#   spring = 1-0.5*(1 - tanh(widthautumn*(((t+365)-tautumn)/365*2*pi)))
+#   summer = pmin(summer, spring)
+#   
+#   d = dsummer + dmax*(winter + summer)
+# }
 #
 # Seasonal variation in light. Roughly taken from Evans and Parslows. 
 # M is the depth of the mixed layer.
 #
-SeasonalLight = function(p,t) {
-  p$L*exp(-0.025*p$M)*(1 - 0.8*sin(pi*p$latitude/180)*cos(2*pi*t/365))
-}
+#SeasonalLight = function(p,t) {
+#  p$L*exp(-0.025*p$M)*(1 - 0.8*sin(pi*p$latitude/180)*cos(2*pi*t/365))
+#}
 
 # derivative = function(t,y,p) {
 #   N = y[1]
@@ -119,9 +119,17 @@ SeasonalLight = function(p,t) {
 #   
 #   return(c(dNdt, dDOCdt, dBdt))
 # }
-
 loadNUMmodel = function() {
-  dyn.load("../lib/NUMmodel_R.so")
+  sys=Sys.info()['sysname']
+  
+  if (sys=='Darwin') 
+    sLibname = '../lib/libNUMmodel_OSX_R.so'
+  if (sys=='Linux') 
+    sLibname = '../lib/libNUMmodel_linux_R.so'
+  if (sys=='Windows')
+    sLibname = '../lib/libNUMmodel_R.dll'
+
+  dyn.load(sLibname)
 }
 
 derivativeF = function(t,y,p) {
@@ -141,24 +149,24 @@ derivativeF = function(t,y,p) {
   return(derivF$dudt)
 }
 
-compareFandRmodel = function(p=parameters(),N=p$N0,DOC=p$DOC0,B=p$B0) {
-  y = c(N,DOC,B)
-  dudtR = derivative(0,y,p)
-  
-  # Load library
-  loadNUMmodel()
-  # Set parameters
-  dummy = .Fortran("f_setupgeneralistsonly", as.integer(p$n))
-  
-  dudtF = derivativeF(0,y,p)
-  
-  plot(p$m, dudtR[3:(p$n+2)], type="l", log="x", col="red")
-  points(p$m, dudtF[3:(p$n+2)], col="blue", lty=dashed)
-  print(dudtR[1:2])
-  print(dudtF[1:2])
-  
-  return( list(calcRates(p$L,N,DOC,B,p), getFrates(p)) )
-}
+# compareFandRmodel = function(p=parameters(),N=p$N0,DOC=p$DOC0,B=p$B0) {
+#   y = c(N,DOC,B)
+#   dudtR = derivative(0,y,p)
+#   
+#   # Load library
+#   loadNUMmodel()
+#   # Set parameters
+#   dummy = .Fortran("f_setupgeneralistsonly", as.integer(p$n))
+#   
+#   dudtF = derivativeF(0,y,p)
+#   
+#   plot(p$m, dudtR[3:(p$n+2)], type="l", log="x", col="red")
+#   points(p$m, dudtF[3:(p$n+2)], col="blue", lty=dashed)
+#   print(dudtR[1:2])
+#   print(dudtF[1:2])
+#   
+#   return( list(calcRates(p$L,N,DOC,B,p), getFrates(p)) )
+# }
 
 simulateChemostatEuler = function(p=parametersChemostat(), bLosses=TRUE) {
   # Load library
@@ -492,44 +500,44 @@ plotTimeline = function(sim, time=max(sim$t)) {
   }
 }
 
-plotSeasonal = function(p,time) {
-  defaultplot()
-  defaultpanel(xlim=c(0,365),
-               ylim=c(0,1),
-               xlab="Time (days)",
-               ylab="d/max(d) / L/max(L)")
-  
-  t = seq(0,365,length.out = 100)
-  lines(t, SeasonalExchange(p$latitude, t)/max(SeasonalExchange(p$latitude, t)),col="red", lwd=3)
-  lines(t, SeasonalLight(p, t)/p$L, col="green", lwd=3)
-  vline(x=time)
-}
-
-plotSeasonalTimeline = function(sim) {
-  require(lattice)
-  require(latticeExtra)
-  
-  p = sim$p
-  ix = sim$t>max(sim$t-365)
-  t = sim$t[ix]
-  
-  B = log10(sim$y[ix,3:(p$n+2)])
-  B[B<(-1)] = -1
-  B[B>3] = 3
-  
-  levelplot(
-    B, 
-    column.values=(p$m), 
-    row.values = t, 
-    aspect="fill",
-    scales = list(y = list(log = 10)),
-    yscale.components = yscale.components.log10ticks,
-    xlab = "Time (days)",
-    ylab = TeX("Carbon mass ($\\mu$gC)"),
-    col.regions = terrain.colors(100),
-    ylim=c(p$m[1]/3, max(p$m)*3)
-  )
-}
+# plotSeasonal = function(p,time) {
+#   defaultplot()
+#   defaultpanel(xlim=c(0,365),
+#                ylim=c(0,1),
+#                xlab="Time (days)",
+#                ylab="d/max(d) / L/max(L)")
+#   
+#   t = seq(0,365,length.out = 100)
+#   lines(t, SeasonalExchange(p$latitude, t)/max(SeasonalExchange(p$latitude, t)),col="red", lwd=3)
+#   lines(t, SeasonalLight(p, t)/p$L, col="green", lwd=3)
+#   vline(x=time)
+# }
+# 
+# plotSeasonalTimeline = function(sim) {
+#   require(lattice)
+#   require(latticeExtra)
+#   
+#   p = sim$p
+#   ix = sim$t>max(sim$t-365)
+#   t = sim$t[ix]
+#   
+#   B = log10(sim$y[ix,3:(p$n+2)])
+#   B[B<(-1)] = -1
+#   B[B>3] = 3
+#   
+#   levelplot(
+#     B, 
+#     column.values=(p$m), 
+#     row.values = t, 
+#     aspect="fill",
+#     scales = list(y = list(log = 10)),
+#     yscale.components = yscale.components.log10ticks,
+#     xlab = "Time (days)",
+#     ylab = TeX("Carbon mass ($\\mu$gC)"),
+#     col.regions = terrain.colors(100),
+#     ylim=c(p$m[1]/3, max(p$m)*3)
+#   )
+# }
 
 #
 # Plot functions:
@@ -938,8 +946,9 @@ calcSheldonFit = function(sim, bPlot=TRUE) {
                 xlab="Carbon mass (${\\mu}$gC/l)",
                 ylab="Sheldon biomass ($\\mu$gC/l)")
     B[B==Bmin]=1e-10
-    lines(m, B, lwd=3)
+    lines(sim$p$m, B, lwd=3)
     #lines(m, rep(Bmean,sim$p$n),lwd=1)
+    m = 10^seq(-9,1,length.out=500)
     Bfit = f(10^theta[1], theta[2], 10^theta[3], 10^theta[4])
     Bfit[Bfit==Bmin] = 1e-10
     lines(m, Bfit, lty=dotted)
