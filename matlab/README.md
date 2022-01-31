@@ -1,1 +1,1 @@
-Matlab code for two figures. Running these successfully requires the matlab code for the NUMmodel library (https://github.com/Kenhasteandersen/NUMmodel), as well as the transport matrices.
+Matlab code for two figures. Running these successfully requires the matlab code for the NUMmodel library (https://github.com/Kenhasteandersen/NUMmodel), as well as the transport matrices. Alternatively, you can ask me for the runs (the mat file is too big for github).
