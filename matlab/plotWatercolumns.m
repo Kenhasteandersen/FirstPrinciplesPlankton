@@ -10,6 +10,7 @@ p.tEnd = 4*365;
 setHTL(0.1);
 p.dt=0.01;
 
+days = [120 200];
 % figure(1)
 % sim = simulateWatercolumn(p,0,330);
 % plotOneWatercolumn(sim); % Eutrophic
@@ -52,8 +53,8 @@ defaultAxes()
 
 for i = 1:3
     nexttile(i)
-    line([125 125],[-200 0],1000*[1,1],'color','w','linestyle','--','linewidth',2)
-    line([200 200],[-200 0],1000*[1,1],'color','w','linestyle','--','linewidth',2)
+    line(days(1)*[1 1],[-200 0],1000*[1,1],'color','w','linestyle','--','linewidth',2)
+    line(days(2)*[1 1],[-200 0],1000*[1,1],'color','w','linestyle','--','linewidth',2)
 end
 
 xlabel(t,'Time (days)')
@@ -68,10 +69,10 @@ figure(4)
 t = tiledlayout(2,2,'TileSpacing','compact','padding','compact',...
     'tileindexing','columnmajor');
 %nexttile
-plotWatercolumn(sim, 125, depthMax=200, bNewplot=false)
+plotWatercolumn(sim, days(1), depthMax=200, bNewplot=false)
 
 %nexttile
-plotWatercolumn(sim, 200, depthMax=200, bNewplot=false)
+plotWatercolumn(sim, days(2), depthMax=200, bNewplot=false)
 
 nexttile(1)
 title('')

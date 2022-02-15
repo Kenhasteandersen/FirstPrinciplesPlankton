@@ -33,7 +33,8 @@ uiChemostat <- fluidPage(
    Cell size is the only trait characterizing each plankton group.
     All groups are able to perform photoharvesting, taking up dissolve nutrients and carbon, and do phagotrophy.
     The trophic strategy is an emergent property.'),
-  p('THIS IS WORK IN PROGRESS. Version 0.9. May 2020.')
+  p('Documentation in: '),
+  p('Submitted version 1.0, February 2022.')
   ,
   # Sidebar with a slider inputs
   sidebarLayout(

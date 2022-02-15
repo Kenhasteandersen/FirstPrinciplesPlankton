@@ -8,7 +8,7 @@ parameters <- function(n=25, mmin10=-8.5, mmax10=0) {
   
   p$n = as.integer(n); # No of groups
   p$m = 10^seq(mmin10,mmax10,length.out = p$n)  # Mass bins in mugC
-  rho = 0.57*1e6*1e-12 # mug/cm3 (Andersen et al 2016; rho = m/V = 0.3*d^3/(4/3*pi*(d/2)^3) )
+  rho = 0.4*1e6*1e-12 # mug/cm3 (Andersen et al 2016; rho = m/V = 0.3*d^3/(4/3*pi*(d/2)^3) )
   p$r = calcRadius(p$m)
   p$Delta = p$m[2]/p$m[1]
   
@@ -34,8 +34,8 @@ parameters <- function(n=25, mmin10=-8.5, mmax10=0) {
   #p$cL = 0.021 # if using my shading formula for non-diatoms
   #p$AL = 0.000914 # if using Andys shading formula for non-diatoms
   #p$cL = 21 # if using Andys shading formula for non-diatoms
-  p$alphaL = 0.206
-  p$rLstar = 8.25
+  p$alphaL = 0.13 # 0.206
+  p$rLstar = 7.5
   p$aF = 0.018  #  Fits to TK data for protists
   p$cF = 30# Just a guess
   #
@@ -105,7 +105,7 @@ calcRadius = function(m) {
 }
 
 calcMass = function(r) {
-  rho = 0.57*1e6*1e-12 # mug/cm3 (Menden-Deuer (2000). If we assume that m propto V we get approximately rho = 0.4e-6 ugC/um^3.
+  rho = 0.4*1e6*1e-12 # mug/cm3 (Menden-Deuer (2000). If we assume that m propto V we get approximately rho = 0.4e-6 ugC/um^3.
   return( r^3*rho*4*pi/3)
 }
 
