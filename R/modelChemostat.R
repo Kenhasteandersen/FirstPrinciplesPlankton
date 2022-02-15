@@ -119,7 +119,6 @@ parametersChemostat = function(p=parameters()) {
 #   
 #   return(c(dNdt, dDOCdt, dBdt))
 # }
-
 loadNUMmodel = function() {
   sys=Sys.info()['sysname']
   
@@ -127,7 +126,7 @@ loadNUMmodel = function() {
     sLibname = '../lib/libNUMmodel_OSX_R.so'
   if (sys=='Linux') 
     sLibname = '../lib/libNUMmodel_linux_R.so'
-  if (sys=='windows')
+  if (sys=='Windows')
     sLibname = '../lib/libNUMmodel_R.dll'
 
   dyn.load(sLibname)
