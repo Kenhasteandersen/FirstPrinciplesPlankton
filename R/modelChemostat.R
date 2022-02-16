@@ -2,7 +2,7 @@ source("model.R")
 source("basetools.R")
 #library("sundialr")
 library("deSolve")
-library(tictoc)
+#library(tictoc)
 
 alpha = 0.25
 colOsmo = rgb(165/256,42/256,42/256,alpha=alpha)
@@ -981,9 +981,7 @@ testSheldon = function(sim) {
 }
 
 baserunChemostat = function(p = parametersChemostat(), useC=FALSE, useF=TRUE) {
-  tic()
   sim = simulateChemostat(p, useC, useF)
-  toc()
   
   defaultplot(c(2,1))
   plotSpectrum(sim, bPlot=FALSE)
