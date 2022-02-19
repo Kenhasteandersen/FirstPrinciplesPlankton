@@ -2,7 +2,7 @@ source("model.R")
 source("basetools.R")
 #library("sundialr")
 library("deSolve")
-library(tictoc)
+#library(tictoc)
 
 alpha = 0.25
 colOsmo = rgb(165/256,42/256,42/256,alpha=alpha)
@@ -123,7 +123,7 @@ loadNUMmodel = function() {
   sys=Sys.info()['sysname']
   
   if (sys=='Darwin') 
-    sLibname = '../lib/libNUMmodel_OSX_R.so'
+    sLibname = '../lib/libNUMmodel_R.dylib'
   if (sys=='Linux') 
     sLibname = '../lib/libNUMmodel_linux_R.so'
   if (sys=='Windows')
@@ -981,9 +981,8 @@ testSheldon = function(sim) {
 }
 
 baserunChemostat = function(p = parametersChemostat(), useC=FALSE, useF=TRUE) {
-  tic()
   sim = simulateChemostat(p, useC, useF)
-  toc()
+
   
   defaultplot(c(2,1))
   plotSpectrum(sim, bPlot=FALSE)
