@@ -1,5 +1,5 @@
 require(latex2exp)
-require(lattice)
+#require(lattice)
 source("basetools.R")
 source("model.R")
 source("modelChemostat.R")
@@ -21,7 +21,7 @@ plotAll = function() {
   pdfplot("../aF.pdf", plot_aF, width = 1.5*singlewidth, height=1.5*height)
   pdfplot("../aN.pdf", plot_aN, width = 1.5*singlewidth, height=1.5*height)
   pdfplot("../Mumax.pdf", plotMumax, width = 1.5*singlewidth, height=1.5*height)
-  pdfplot("../Rstar.pdf", plotRstar, width=doublewidth, height = 1.25*height)
+  pdfplot("../Rstar.pdf", plotRstar, width=singlewidth, height = height)
   #pdfplot("../Mumax_corrected.pdf", plotMuAlphaCorrelation, width = 1.5*singlewidth, height=1.5*height)
   
   plotSimulationExamples()
@@ -50,7 +50,7 @@ plotAll = function() {
   pdfplot("../BacterialGenerationTime.pdf", 
           plotBacteriaGenerationTime_vs_area, height=height)
   
-  pdfplot("../HTL.pdf", plotHTL, height=2*height)
+  pdfplot("../HTL.pdf", plotHTL, width=singlewidth, height=1.5*height)
   
   pdfplot("../Temperature.pdf", plotTemperature, width=doublewidth, height=2*height)
   
@@ -68,7 +68,7 @@ convertVolume2Mass = function(vol, taxon="other") {
   return(C)
 }
 
-plot_aL = function() {
+ plot_aL = function() {
   data = data.frame(r=NA,C=NA,taxon=NA,aL=NA)
   #
   # Taguchi
@@ -128,17 +128,25 @@ plot_aL = function() {
   loglogpanel(xlim = c(0.1, 300), 
               ylim = c(0.5*min(data$aL[!is.na(data$aL)]), 2*max(data$aL[!is.na(data$aL)])),
               xlab="Cell radius ($\\mu$m)",
-              ylab="Light affinity $\\textit{a_L}$ (day$\\cdot \\mu$ mol photons m$^{-2}s^{-1}\\cdot \\mu$g$_C)^{-1}$")
+              ylab="Light affinity ($\\textit{a_L}$ (day$\\cdot \\mu$mol photons m$^{-2}s^{-1})^{-1}\\mu$m)")
   points(data$r[!ixDiatom], data$aL[!ixDiatom],pch=15, col="darkgreen")
   points(data$r[ixDiatom], data$aL[ixDiatom],pch=16, col="darkgreen")
   points(data$r[data$source=="Taguchi"], data$aL[data$source=="Taguchi"], pch=17, col="darkgreen")
   
   r = 10^seq(-1, 4, length.out = 100)
-  lines(r, exp(predict(fit, list(r=r,C=C))), lwd=2)
+#  lines(r, exp(predict(fit, list(r=r,C=C))), lwd=2)
   
-  lines(r, coef(fit)[[2]]/r, lty=dotted)
-  lines(r, coef(fit)[[2]]/coef(fit)[[1]]*r/r, lty=dotted)
-  lines(r, coef(fit)[[2]]/coef(fit)[[1]] * (1-3*delta/r), lty=dotted)
+#  lines(r, coef(fit)[[2]]/r, lty=dotted)
+#  lines(r, coef(fit)[[2]]/coef(fit)[[1]]*r/r, lty=dotted)
+#  lines(r, coef(fit)[[2]]/coef(fit)[[1]] * (1-3*delta/r), lty=dotted)
+  
+  p = parameters()
+  lines(r, p$alphaL/r, lty=dotted)
+  lines(r, p$alphaL/p$rLstar*r/r, lty=dotted)
+  lines(r, p$alphaL/p$rLstar * (1-3*delta/r), lty=dotted)
+  
+  lines(r, p$alphaL/r*(1-exp(-r/p$rLstar))*(1-3*delta/r),col='black', lwd=2)
+  lines(r, p$alphaL/r*(1-exp(-r/p$rLstar)),col='darkgreen', lwd=2)
   
   legend(x="topright", bty="n",
          legend=c("Diatoms", "Other phototrophs"),
@@ -368,7 +376,8 @@ plot_aF = function() {
   
   defaultplot()
   loglogpanel(xlim=c(1e-6, 1), ylim=c(1e-4,1),
-              xlab = "Mass ($\\mu$gC)", ylab="Specfic clearance rate $\\textit{a_F}$ (L/d/{\\mu}gC)")
+              xlab = "Mass (${\\mu}g_C$)", 
+              ylab="Specfic clearance rate $\\textit{a}_F (L/d/\\mu gC)$")
   points(data$w[ixProtist], data$beta[ixProtist]/data$w[ixProtist], pch=16)
   w = 10^seq(-7,1)
   lines(w, SpecificBeta*w/w, lwd=2)
@@ -405,8 +414,8 @@ plot_aN = function() {
   #
   defaultplot()
   loglogpanel(xlim=c(0.1 ,200), ylim=c(1e-5, 20), #c(1e-9 ,1)
-              xlab="Radius ($\\mathrm{\\mu}$m)",
-              ylab="Nutrient affinity, $\\textit{a}_N$ (L/day/$\\mathrm{\\mu}$gC)")
+              xlab="Radius ($\\mu$m)",
+              ylab="Nutrient affinity, $\\textit{a}_N$ (L/day/${\\mu}g_C)$")
   
   col = 1
   taxons = unique(dat$taxon[!is.na(C) & !(is.na(a_nit) & is.na(a_amm)  & is.na(a_phos))])
@@ -493,11 +502,13 @@ plotRstar = function() {
   
   tightaxes()
   defaultplot()
+  par(cex.axis=cex,
+      cex.lab=cex,
+      oma=c(0, 0, 2, 0) + 0.1)
   loglogpanel(xlim=r, 
-              ylim=c(0.0001,1000),
+              ylim=c(0.007,200),
               xlab = "Cell radius ($\\mu$m)",
-              ylab = "Limiting concentration ($\\mu$M) or ($\\mu$E/m$^2$/s)")
-  
+              ylab = "Limiting concentration ($\\mu$M) or ($\\mu$mol/m$^2$/s)")
   
   rmin = -((p$cLeakage + 3*p$alphaJ*p$delta)/(p$jR - p$alphaJ))
   polygon(c(0.01, rmin, rmin,0.011), c(0.0001,0.00011,2000,2000), 
@@ -536,11 +547,11 @@ plotRstar = function() {
     lwd=1
   }
   
-  legend(x="bottomright", bty="n",
+  legend(xpd=NA, x="topleft", inset=c(0,-0.25), bty="n",
          legend=c(TeX("$\\textit{N}^*$"), 
-                  TeX("$$DOC^*$"), 
-                  TeX("$$\\textit{L}^*$"),
-                  TeX("$$\\textit{F}^*$")),
+                  TeX("$DOC^*$"), 
+                  TeX("$\\textit{L}^*$"),
+                  TeX("$\\textit{F}^*$")),
          col=c("blue","magenta","darkgreen","darkred"),
          lwd=2)
 }
@@ -669,15 +680,15 @@ plotStrategies = function(n=50) {
   # The four strategy panels:
   #
   panelStrategies(p,N,p$L*ones,p$B0 %*% t(ones),p$DOC0*ones,y=N,
-                  'Nutr. ($ \\mu g_N/l)$')
+                  'Nutr. ($ \\mu g_N/l$)')
   hline(p$N0)
   panelStrategies(p,p$N0*ones,L,p$B0 %*% t(ones),p$DOC0*ones,y=L,
-                  'Light ($\\mu E/m^2/s)$')
+                  'Light ($\\mu E/m^2/s$)')
   hline(p$L)
   panelStrategies(p,p$N0*ones,p$L*ones,Bsheldon,p$DOC0*ones,y=Bsheldon[1,],'B_{Sheldon}')
   hline(p$B0[1])
   panelStrategies(p,p$N0*ones,p$L*ones,p$B0 %*% t(ones),DOC,y=DOC,
-                  'DOC ($\\mu g_C/l)$','Cell mass ($\\mu g_C$)',
+                  'DOC ($\\mu g_C/l$)','Cell mass ($\\mu g_C$)',
                   bXaxis=TRUE)
   hline(p$DOC0)
 }
@@ -716,9 +727,9 @@ plotSimulationExamples = function() {
     #
     kappa = calcSheldonKappa(sim$p)
     lines(m, rep(kappa, p$n), lty=dotted, col=grey(0.5))
-    text(x = 8e-8, y = 0.8*kappa,
+    text(x = 8e-9, y = 0.7*kappa,
          labels='Theory',
-         cex=0.75*cex, pos=3,col=grey(0.5))
+         cex=0.5*cex, pos=3,col=grey(0.5))
     #     mar=c(4,5,8,2)+0.1)
     #
     # Add gray-scale variation
@@ -741,9 +752,9 @@ plotSimulationExamples = function() {
     # Legend:
     #
     if (bLegend)
-      legend(xpd=NA, x="topright", inset=c(-.75, 0), 
+      legend(xpd=NA, x="topright", inset=c(-.8, 0), 
              bty="n", 
-             legend=c("Osmoheterotrophs", "Light limited phototrophs","N limited phototrophs","Mixotrophs","Heterotrophs"),
+             legend=c("Osmoheterotrophs", "Light limited photo.","N limited phototrophs","Mixotrophs","Heterotrophs"),
              fill=c(colOsmo, colPhoto,colN,colMixo,colHetero,"transparent"),
              border=c("black","black","black","black","black","transparent"),
              lwd = c(0,0,0,0,0,3),
@@ -767,10 +778,10 @@ plotSimulationExamples = function() {
     legend(x=sx, cex=0.8, bty="n", text.col=grey(0.5),
            y.intersp = 0.7,
            legend=c(
-             TeX(sprintf("Chl-a: %1.3f $gC/m^2$", func$Chl_per_m2/1000)),
-             TeX(sprintf("Pico: %1.2f $gC/m$^2$", func$Bpico)),
-             TeX(sprintf("Nano: %1.2f $gC/m$^2$", func$Bnano)),
-             TeX(sprintf("Micro: %1.2f $gC/m$^2$", func$Bmicro)))
+             TeX(sprintf("Chl-a: %1.3f $\\mu$g$_{Chl}$/l", func$Chl_per_l)),
+             TeX(sprintf("Pico: %1.2f $g_C$/m$^2$", func$Bpico)),
+             TeX(sprintf("Nano: %1.2f $g_C$/m$^2$", func$Bnano)),
+             TeX(sprintf("Micro: %1.2f $g_C$/m$^2$", func$Bmicro)))
     )
     
     makepanellabel()
@@ -848,7 +859,7 @@ plotSimulationExamples = function() {
       #lines(range(p$m), -mortPredTheoretical*c(1,1), lty=dotted, col="red")
       
       legend(x="bottomright", cex=cex,
-             xpd=NA, inset=c(-0.75,-0.1),
+             xpd=NA, inset=c(-0.75,-0.2),
              y.intersp = 0.7,
              legend=c("","", "Predation", "Virulysis", 
                       "Higher trophic levels","Respiration","Passive"),
@@ -881,6 +892,9 @@ plotSimulationExamples = function() {
     # Write functions:
     #
     func = calcFunctions(sim)
+    cat('B        ' , sum(sim$B*p$M/1000), 'gC/m2\n')
+    cat('Chl      ' , func$Chl_per_l, 'ugChl/l\n')
+    
     cat('ProdGross' , func$ProdGross, 'gC/m2/yr\n')
     cat('ProdNet  ' , func$ProdNet, 'gC/m2/yr\n')
     cat('ProdHTL  ' , func$ProdHTL, 'gC/m2/yr\n')
@@ -951,7 +965,7 @@ calcFunctions = function(sim) {
   return(func)
 }
 
-plotFunctions = function(L=c(20, 100), n=10) {
+plotFunctions = function(L=c(30, 100), n=10) {
   
   panelsFunctions = function(L, n=10, yaxis=TRUE) {
     d = 10^seq(-3,0,length.out = n) #seq(0.02,2,length.out=n) #
@@ -986,7 +1000,7 @@ plotFunctions = function(L=c(20, 100), n=10) {
     # Concentrations:
     if (yaxis)
       ylab = "Concentrations"
-    loglogpanel(xlim=d, ylim=c(0.01,1000), xaxis=FALSE, yaxis=yaxis,
+    loglogpanel(xlim=d, ylim=c(0.01,5000), xaxis=FALSE, yaxis=yaxis,
                 ylab=ylab)
     lines(F$d, F$N/14, lwd=2, col="blue")
     lines(F$d, F$DOC/12, lwd=2, col="brown")
@@ -1039,7 +1053,7 @@ plotFunctions = function(L=c(20, 100), n=10) {
     lines(F$d, F$ProdBact/F$ProdNet, lwd=2, col="magenta")
     hline(1)
     if (yaxis) {
-      legend("topright", ,bty="n", cex=cex,
+      legend("topright", ,bty="n", cex=0.8*cex,
              y.intersp = 0.8,
              legend=c(TeX("$\\epsilon_{HTL}$"), TeX("$\\epsilon_{PP}$"), TeX("$\\epsilon_{bact}$")),
              lwd=2, col=c("red", "darkgreen","magenta"))
@@ -1392,9 +1406,11 @@ plotHTL = function(d=dEutrophic, L=LEutrophic) {
   mHTL = seq(0,0.5, length.out=25)
   
   defaultplot(mfcol=c(2,1))
-  loglogpanel(xlim=p$m, ylim=c(1,100), 
+  loglogpanel(xlim=p$m, ylim=c(0.2,200), 
               xlab = 'Mass ($\\mu g_C$)',
               ylab = 'Sheldon biomass ($\\mu$gC/l)')
+  polygon(c(p$mHTL, 1, 1, p$mHTL), c(.2,.2,200,200), col=lightgrey, border=NA)
+  
   B = NA
   NPP = NA
   prodHTL = NA
@@ -1412,14 +1428,14 @@ plotHTL = function(d=dEutrophic, L=LEutrophic) {
   }
   ribbon(x=p$m, ymin=0*p$m+0.01, ymax=10^(p$mortHTLm-2))
   
-  defaultpanel(xlim=mHTL, ylim=c(0,100*floor(1.8*max(B)/100)+1),
+  defaultpanel(xlim=mHTL, ylim=c(0,100*floor(1.8*max(NPP)/100)+1),
                xlab="Higher trophic level mortality $\\mu_{htl}$ (day$^{-1}$)")
   
   lines(mHTL, B, lwd=2)
   lines(mHTL, NPP, col='green', lwd=2)
   lines(mHTL, prodHTL, col='red',lwd=2)
   
-  legend(x="topright", bty="n", cex=cex,
+  legend(x="topleft", bty="n", cex=0.8*cex,
          legend=c(TeX('Biomass (${\\mu}g_C$/l)'), 
                   TeX('NPP (g_C/yr/m^2)'), 
                   TeX('prod. HTL (g_C/yr/m^2)')),
@@ -1464,7 +1480,7 @@ plotTemperature = function(n=50) {
     #
     ylab = ""
     if (bLegend)
-      ylab = "Division rate  $\\textit{j}$_{net} (yr^{-1})"
+      ylab = "Division rate  $\\textit{j}_{net} (yr^{-1})$"
     semilogypanel(xlim=T,ylim=c(0.05,2),
                   ylab=ylab, xaxis=FALSE, yaxis=bLegend)
     # Reference lines:
@@ -1489,10 +1505,10 @@ plotTemperature = function(n=50) {
     makepanellabel()
     
     if (bLegend) {
-      legend(x="bottomright", bty="n", cex=cex,
+      legend(x="topright", bty="n", cex=0.8*cex,
              legend=c(TeX('Biomass (${\\mu}g_C$/l)'), 
-                      TeX('NPP (g_C/yr/m^2)'), 
-                      TeX('prod HTL (g_C/yr/m^2)')),
+                      TeX('NPP ($g_C/yr/m^2$)'), 
+                      TeX('prod HTL ($g_C/yr/m^2$)')),
              col=c('black','green','red'), lwd=rep(2,3))
     }
     #
@@ -1509,8 +1525,40 @@ plotTemperature = function(n=50) {
   }
   
   defaultplot(mfcol=c(3,2))
-  panelTemperature(dEutrophic)
-  panelTemperature(dOligotrophic, bLegend=FALSE)
+  panelTemperature(dOligotrophic)
+  panelTemperature(dEutrophic, bLegend=FALSE)
   
 }
+
+plotChl = function() {
+  p = parametersChemostat()
+  m = p$m
+  
+  defaultplot()
+  semilogxpanel(xlim=m, ylim=c(0,0.02),
+                xlab="mass (mugC)", ylab="Chl:C")
+  p$d = dEutrophic
+  p$L = LEutrophic
+  sim = simulateChemostat(p)  
+  lines(m, sim$rates$jLreal/p$L,lwd="2")
+  
+  p$d = dOligotrophic
+  p$L = LOligotrophic
+  sim = simulateChemostat(p)  
+  lines(m, sim$rates$jLreal/p$L,lwd="2")
+}
+
+
+plotRho = function() {
+  defaultplot()
+  defaultpanel(xlim=(c(-2,8)), ylim=(c(-1,6)),
+              xlab="log cell volume", ylab="log cell carbon")
+  V = seq(0,7)
+  
+  lines(V, -0.665 + 0.939*V)
+  lines(V, log(0.4) + V,col='red')
+  lines(V, log(0.2) + V,col='magenta')
+  lines(V, -0.541 + 0.811*V,col='darkgreen')
+}
+
 

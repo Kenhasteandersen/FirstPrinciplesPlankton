@@ -437,10 +437,10 @@ calcFunctionsChemostat = function(p,r,L,N,B) {
   prodRate = prodCnet/(Bpico+Bnano+Bmicro)/365
   
   #
-  # Chl-a (gC/m2): Use rough conversion from Edwards et al (2015) that Chl-a propto alpha
+  # Chl-a : Use rough conversion from Edwards et al (2015) that Chl-a propto alpha
   #
-  Chl_per_l = sum( r$jLreal/(p$epsilonL*L)*B )
-  Chl_per_m2 = conversion * Chl_per_l
+  Chl_per_l = sum( r$jLreal/(p$epsilonL*L)*B ) # mugChl/l
+  Chl_per_m2 = conversion * Chl_per_l # gC/m2
   
   return(list(
     prodNew = prodNew,
@@ -718,7 +718,7 @@ plotSpectrum <- function(sim, t=max(sim$t), bPlot=TRUE,
   
   func = calcFunctionsChemostat(sim$p, sim$rates, sim$p$L, sim$N, sim$B)
   text(x=1, y0+1., 
-       labels=TeX(sprintf("Chl-a: %1.2f $gC/m$^2$", func$Chl_per_m2)),
+       labels=TeX(sprintf("Chl-a: %1.3f ${\\mu}$gC/l", func$Chl_per_l)),
        cex=cex, pos=2, col=grey(0.5))
   text(x=1, y0+0.6, 
        labels=TeX(sprintf("Picoplankton: %1.2f $gC/m$^2$", func$Bpico)),
@@ -983,7 +983,6 @@ testSheldon = function(sim) {
 baserunChemostat = function(p = parametersChemostat(), useC=FALSE, useF=TRUE) {
   sim = simulateChemostat(p, useC, useF)
 
-  
   defaultplot(c(2,1))
   plotSpectrum(sim, bPlot=FALSE)
   plotRates(sim, bPlot=FALSE)

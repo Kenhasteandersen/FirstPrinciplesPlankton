@@ -1,7 +1,7 @@
 #
 # Background tools for plotting
 #
-require(latex2exp)
+require(latex2exp) # Should be version 0.5 to work!!! 
 
 singlewidth <- 8/2.54 # panel width in cm
 doublewidth <- 13/2.54
@@ -147,7 +147,7 @@ semilogxpanel <- function(xlim, ylim, xlab='', ylab='',
        xlim=xlim, axes=FALSE, xlab='',ylab='', xaxs=xaxs, par(new=new),
        xaxs="i", yaxs="i")
 
-  if (xaxis)
+  if ((xaxis) && (xlab != "") )
     mtext(side=bottom, line=1, TeX(xlab))
   if (yaxis)
     mtext(side=left, line=1, TeX(ylab))
@@ -190,8 +190,10 @@ loglogpanel <- function(xlim, ylim, xlab='', ylab='',
        ylim=ylim, 
        xlim=xlim, axes=FALSE, xlab='',ylab='', par(new=new), xaxs=xaxs,
        xaxs="i",yaxs="i")
-  mtext(side=bottom, line=1.1, TeX(xlab))
-  mtext(side=left, line=1.5, TeX(ylab))
+  if (xlab != '')
+    mtext(side=bottom, line=1.1, TeX(xlab))
+  if (ylab != '')
+    mtext(side=left, line=1.5, TeX(ylab))
   if (label) 
     makepanellabel()
   logaxes(bottom, lim=xlim, bExponential = bExponential, labels=xaxis, pow=powx)
