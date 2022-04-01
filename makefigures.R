@@ -17,19 +17,19 @@ LEutrophic = 40
 # ===================================================
 
 plotAll = function() {
-  pdfplot("../aL.pdf", plot_aL, width = 1.5*singlewidth, height=1.5*height)
-  pdfplot("../aF.pdf", plot_aF, width = 1.5*singlewidth, height=1.5*height)
-  pdfplot("../aN.pdf", plot_aN, width = 1.5*singlewidth, height=1.5*height)
-  pdfplot("../Mumax.pdf", plotMumax, width = 1.5*singlewidth, height=1.5*height)
-  pdfplot("../Rstar.pdf", plotRstar, width=singlewidth, height = height)
+  pdfplot("aL.pdf", plot_aL, width = 1.5*singlewidth, height=1.5*height)
+  pdfplot("aF.pdf", plot_aF, width = 1.5*singlewidth, height=1.5*height)
+  pdfplot("aN.pdf", plot_aN, width = 1.5*singlewidth, height=1.5*height)
+  pdfplot("Mumax.pdf", plotMumax, width = 1.5*singlewidth, height=1.5*height)
+  pdfplot("Rstar.pdf", plotRstar, width=singlewidth, height = height)
   #pdfplot("../Mumax_corrected.pdf", plotMuAlphaCorrelation, width = 1.5*singlewidth, height=1.5*height)
   
   plotSimulationExamples()
   
-  pdfplot("../Strategies.pdf", plotStrategies, 
+  pdfplot("Strategies.pdf", plotStrategies, 
           width=singlewidth, height=3*height)
   
-  pdfplot("../SheldonComparison.pdf", plotSheldonComparison, width=doublewidth, height=doublewidth)
+  pdfplot("SheldonComparison.pdf", plotSheldonComparison, width=doublewidth, height=doublewidth)
   
   #fontsize = trellis.par.get("fontsize")
   #fontsize$text = 10
@@ -39,20 +39,20 @@ plotAll = function() {
   #plt
   #dev.off()
   
-  pdfplot("../Functions.pdf", plotFunctions,n=40, width=doublewidth, height=2.5*height)
+  pdfplot("Functions.pdf", plotFunctions,n=40, width=doublewidth, height=2.5*height)
   
-  pdfplot("../GridPreference.pdf", plotGridPreference, width=1.5*singlewidth, height=height)
+  pdfplot("GridPreference.pdf", plotGridPreference, width=1.5*singlewidth, height=height)
   
   #pdfplot("../Gridtest.pdf", plotGridtest, width=doublewidth, height=height)
   
-  pdfplot("../DOC.pdf", plotDOC, width=doublewidth, height=1.75*height)
+  pdfplot("DOC.pdf", plotDOC, width=doublewidth, height=1.75*height)
   
-  pdfplot("../BacterialGenerationTime.pdf", 
+  pdfplot("BacterialGenerationTime.pdf", 
           plotBacteriaGenerationTime_vs_area, height=height)
   
-  pdfplot("../HTL.pdf", plotHTL, width=singlewidth, height=1.5*height)
+  pdfplot("HTL.pdf", plotHTL, width=singlewidth, height=1.5*height)
   
-  pdfplot("../Temperature.pdf", plotTemperature, width=doublewidth, height=2*height)
+  pdfplot("Temperature.pdf", plotTemperature, width=doublewidth, height=2*height)
   
   #system("cp ../*pdf ../../dropbox")
 }
@@ -73,7 +73,7 @@ convertVolume2Mass = function(vol, taxon="other") {
   #
   # Taguchi
   #
-  #Ata=read.csv("../data/Taguchi.dat",  header=FALSE, col.names=c("V ((mum)^3)", "err", "C (pgC", "CperChl", "alpha (mgC/(mg chlA) /h /W m^2)"), sep=" ")
+  #Ata=read.csv("data/Taguchi.dat",  header=FALSE, col.names=c("V ((mum)^3)", "err", "C (pgC", "CperChl", "alpha (mgC/(mg chlA) /h /W m^2)"), sep=" ")
   #C = (Ata$C..pgC)*1e-6 # mugC
   #chl = 1e-3 * C/Ata$CperChl # mg chl
   #A = 24 * 1000* Ata$alpha * chl # mugC/d/(Wm2)
@@ -83,7 +83,7 @@ convertVolume2Mass = function(vol, taxon="other") {
   #
   # Edwards:
   #
-  Aed = read.csv("../data/Data from Edwards et al (2015).csv", 
+  Aed = read.csv("data/Data from Edwards et al (2015).csv", 
                  sep=";", skip=3, header=TRUE, na.strings = "na")
   C = convertVolume2Mass(Aed$volume, Aed$taxon)
   r = (Aed$volume*3/(4*pi))^(1/3)
@@ -160,7 +160,7 @@ plotMumax = function() {
   #
   # Edwards:
   #
-  Aed = read.csv("../data/Data from Edwards et al (2015).csv", 
+  Aed = read.csv("data/Data from Edwards et al (2015).csv", 
                  sep=";", skip=3, header=TRUE, na.strings = "na")
   C = convertVolume2Mass(Aed$volume, Aed$taxon)
   Aed$C =   C
@@ -174,7 +174,7 @@ plotMumax = function() {
   #
   # Kiørboe and hirst (2014):
   #
-  Akh = read.csv('../Data/Kiorboe and Hirst (2014) maximum growth rates.csv', 
+  Akh = read.csv('data/Kiorboe and Hirst (2014) maximum growth rates.csv', 
                  sep=",", header=TRUE, skip=1, as.is=TRUE)
   Akh$Group[Akh$Group=="Dinoflagellates"] = "dinoflagellate"
   Akh$Group[Akh$Group=="Nanoflagellates (except dinoflagellates)"] = "nanoflagellate"
@@ -188,7 +188,7 @@ plotMumax = function() {
   #
   # Kirchman (2016) - but not max growth rates
   #
-  Ak = read.csv('../Data/ma08_kirchman_supappendix3.csv',
+  Ak = read.csv('data/ma08_kirchman_supappendix3.csv',
                 sep=",", header=TRUE, skip=15)
   Ak = Ak[1:149,]
   # Sort out incomplete entries:
@@ -203,7 +203,7 @@ plotMumax = function() {
   #
   # Rose and Caron (2007)
   #
-  Arc = read.csv('../Data/Rose and Caron bacterivores.csv',
+  Arc = read.csv('data/Rose and Caron bacterivores.csv',
                  sep=",", header=TRUE)
   Arc$volume = as.numeric( gsub(",","", as.character(Arc$volume)) )
   # Correct to 10 degrees with a Q10 of 2.8
@@ -215,7 +215,7 @@ plotMumax = function() {
     C = convertVolume2Mass(Arc$volume),
     mu_max=as.numeric(Arc$Growth.Rate)))
   
-  Arc = read.csv('../Data/Rose and Caron herbivores.csv',
+  Arc = read.csv('data/Rose and Caron herbivores.csv',
                  sep=",", header=TRUE)
   Arc$volume = as.numeric( gsub(",","", as.character(Arc$volume)) )
   # Correct to 10 degrees with a Q10 of 2.8
@@ -296,7 +296,7 @@ plotMuAlphaCorrelation = function() {
   #
   # Edwards:
   #
-  Aed = read.csv("../data/Data from Edwards et al (2015).csv", 
+  Aed = read.csv("data/Data from Edwards et al (2015).csv", 
                  sep=";", skip=3, header=TRUE, na.strings = "na")
   C = convertVolume2Mass(Aed$volume, Aed$taxon)
   Aed$C = C
@@ -359,7 +359,7 @@ plotMuAlphaCorrelation = function() {
 
 
 plot_aF = function() {
-  dat <- read.csv("../data/TK Appendix feeding rates - revised.csv",header=TRUE,sep=";")
+  dat <- read.csv("data/TK Appendix feeding rates - revised.csv",header=TRUE,sep=";")
   data = data.frame(w=1e3*dat$Body.mass, beta=24*0.001*dat$Fmax.1, Group=dat$Group)  
   
   ixProtist = (data$Group=="Nanoflagellates") | 
@@ -386,7 +386,7 @@ plot_aF = function() {
 # Plot specific affinity:
 #
 plot_aN = function() {
-  dat = read.csv("../data/Nutrient data from Edwards et al (2015b).csv",
+  dat = read.csv("data/Nutrient data from Edwards et al (2015b).csv",
                  header=TRUE,sep=",")
   #
   # Convert carbon from mol to g:

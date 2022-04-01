@@ -123,11 +123,11 @@ loadNUMmodel = function() {
   sys=Sys.info()['sysname']
   
   if (sys=='Darwin') 
-    sLibname = '../lib/libNUMmodel_R.dylib'
+    sLibname = 'lib/libNUMmodel_R.dylib'
   if (sys=='Linux') 
-    sLibname = '../lib/libNUMmodel_linux_R.so'
+    sLibname = 'lib/libNUMmodel_linux_R.so'
   if (sys=='Windows')
-    sLibname = '../lib/libNUMmodel_R.dll'
+    sLibname = 'lib/libNUMmodel_R.dll'
 
   dyn.load(sLibname)
 }
