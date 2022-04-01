@@ -18,12 +18,12 @@ parametersChemostat = function(p=parameters()) {
   p$d = 0.05  # diffusion rate, m/day
   p$M = 20   # Thickness of the mixed layer, m
   p$T = 10   # Temperature
-  p$N0 = 150 # Deep nutrient levels
+  p$N0 = 50 # Deep nutrient levels
   
   #
   # Light:
   #
-  p$L = 60  # PAR, mu E/m2/s
+  p$L = 30  # PAR, mu E/m2/s
   p$latitude = 0 # amplitude of seasonal light variation in fractions of L
   
   p$tEnd = 365 # Simulation length (days)

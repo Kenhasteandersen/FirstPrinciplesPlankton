@@ -7,10 +7,10 @@ source("modelChemostat.R")
 #
 # Conditions for the two examples:
 #
-dOligotrophic = 0.001 # Mixing
-LOligotrophic = 60 # Light
+dOligotrophic = 0.0025 # Mixing
+LOligotrophic = 40 # Light
 dEutrophic = 0.1
-LEutrophic = 60
+LEutrophic = 40
 
 # ===================================================
 # Plots for article
@@ -988,7 +988,7 @@ plotFunctions = function(L=c(30, 100), n=10) {
     B = F$Bpico+F$Bnano+F$Bmicro
     if (yaxis)
       ylab = "Biomass ($g_C/m^2$)"
-    semilogxpanel(xlim=c(d), ylim=c(0,15), xaxis=FALSE, yaxis=yaxis,
+    semilogxpanel(xlim=c(d), ylim=c(0,5), xaxis=FALSE, yaxis=yaxis,
                   ylab=ylab)
     lines(F$d, B, lwd=2)
     lines(F$d, F$Bpico, lwd=0.5, col="grey")
@@ -1212,8 +1212,9 @@ plotSheldonComparison = function(L = 100, n=20) {
   rMin = (p$cLeakage+3*p$alphaJ*p$delta) / (p$alphaJ-p$cR*p$alphaJ)
   rMax = p$epsilonF*p$cF / ( p$cR*p$alphaJ  )
   
-  ix = fit$kappa < 0.01
+  ix = is.nan(fit$Bmean)
   fit$mMin[ix] = fit$mMax[ix]
+
   
   loglogpanel(xlim=d, ylim=c(1e-9, 50),
               xlab = "Mixing rate (day$^{-1}$)", ylab="Size limits (mug)")
@@ -1437,8 +1438,8 @@ plotHTL = function(d=dEutrophic, L=LEutrophic) {
   
   legend(x="topleft", bty="n", cex=0.8*cex,
          legend=c(TeX('Biomass (${\\mu}g_C$/l)'), 
-                  TeX('NPP (g_C/yr/m^2)'), 
-                  TeX('prod. HTL (g_C/yr/m^2)')),
+                  TeX('NPP ($g_C/yr/m^2$)'), 
+                  TeX('prod. HTL ($g_C/yr/m^2$)')),
          col=c('black','green','red'), lwd=rep(2,3))
   
 }
