@@ -1,9 +1,9 @@
 #
 # Install app:
 #  ssh ken@oceanlife.dtuaqua.dk
-#  cd SizeBasedPlankton
+#  cd FirstPrinciplesPlankton
 #  update the git (git pull)
-#  sudo cp SizeBasedPlankton/R/*  /srv/shiny-server/Plankton
+#  sudo cp -R ~/FirstPrinciplesPlankton/*  /srv/shiny-server/Plankton2
 #  If using new packages install them by running R as root (sudo su; R; install.packages("XXX))
 #  sudo systemctl restart shiny-server
 # 
