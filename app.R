@@ -1,9 +1,9 @@
 #
 # Install app:
 #  ssh ken@oceanlife.dtuaqua.dk
-#  cd SizeBasedPlankton
+#  cd FirstPrinciplesPlankton
 #  update the git (git pull)
-#  sudo cp SizeBasedPlankton/R/*  /srv/shiny-server/Plankton
+#  sudo cp -R ~/FirstPrinciplesPlankton/*  /srv/shiny-server/Plankton2
 #  If using new packages install them by running R as root (sudo su; R; install.packages("XXX))
 #  sudo systemctl restart shiny-server
 # 
@@ -32,9 +32,9 @@ uiChemostat <- fluidPage(
   p('Simulate a plankton ecosystem in the upper part of a watercolumn. 
    Cell size is the only trait characterizing each plankton group.
     All groups are able to perform photoharvesting, taking up dissolve nutrients and carbon, and do phagotrophy.
-    The trophic strategy is an emergent property.'),
+    The trophic strategy (the background colours) is an emergent property.'),
   p('Documentation in: '),
-  p('Submitted version 1.0, February 2022.')
+  p('Submitted version 1.0, April 2022.')
   ,
   # Sidebar with a slider inputs
   sidebarLayout(
@@ -44,7 +44,7 @@ uiChemostat <- fluidPage(
                   min = 0,
                   max = 300,
                   step=1,
-                  value = parametersChemostat()$L)
+                  value = 60)
       ,
       sliderInput("d10",
                   "log10(Mixing rate) (1/day)",

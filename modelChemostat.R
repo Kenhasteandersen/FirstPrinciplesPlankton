@@ -18,12 +18,12 @@ parametersChemostat = function(p=parameters()) {
   p$d = 0.05  # diffusion rate, m/day
   p$M = 20   # Thickness of the mixed layer, m
   p$T = 10   # Temperature
-  p$N0 = 150 # Deep nutrient levels
+  p$N0 = 50 # Deep nutrient levels
   
   #
   # Light:
   #
-  p$L = 60  # PAR, mu E/m2/s
+  p$L = 30  # PAR, mu E/m2/s
   p$latitude = 0 # amplitude of seasonal light variation in fractions of L
   
   p$tEnd = 365 # Simulation length (days)
@@ -123,11 +123,11 @@ loadNUMmodel = function() {
   sys=Sys.info()['sysname']
   
   if (sys=='Darwin') 
-    sLibname = '../lib/libNUMmodel_OSX_R.so'
+    sLibname = 'lib/libNUMmodel_R.dylib'
   if (sys=='Linux') 
-    sLibname = '../lib/libNUMmodel_linux_R.so'
+    sLibname = 'lib/libNUMmodel_linux_R.so'
   if (sys=='Windows')
-    sLibname = '../lib/libNUMmodel_R.dll'
+    sLibname = 'lib/libNUMmodel_R.dll'
 
   dyn.load(sLibname)
 }
@@ -982,7 +982,7 @@ testSheldon = function(sim) {
 
 baserunChemostat = function(p = parametersChemostat(), useC=FALSE, useF=TRUE) {
   sim = simulateChemostat(p, useC, useF)
-  
+
   defaultplot(c(2,1))
   plotSpectrum(sim, bPlot=FALSE)
   plotRates(sim, bPlot=FALSE)
