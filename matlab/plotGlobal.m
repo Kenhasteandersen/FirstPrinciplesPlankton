@@ -1,12 +1,8 @@
-<<<<<<< HEAD
 addpath('~/NUMmodel/matlab')
 
-p = setupGeneralistsOnly(20,true);
-p = parametersGlobal(p,2);
-=======
+p = setupGeneralistsOnly(20);
 %p = setupGeneralistsOnly(20,true);
-%p = parametersGlobal(p,2);
->>>>>>> b4a02ff95bf283b443b333257724866e92e9bdcc
+p = parametersGlobal(p,2);
 
 %sim = simulateGlobal(p);
 
