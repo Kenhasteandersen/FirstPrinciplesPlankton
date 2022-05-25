@@ -123,11 +123,11 @@ loadNUMmodel = function() {
   sys=Sys.info()['sysname']
   
   if (sys=='Darwin') 
-    sLibname = 'lib/libNUMmodel_R.dylib'
+    sLibname = '../lib/libNUMmodel_R.dylib'
   if (sys=='Linux') 
-    sLibname = 'lib/libNUMmodel_linux_R.so'
+    sLibname = '../lib/libNUMmodel_linux_R.so'
   if (sys=='Windows')
-    sLibname = 'lib/libNUMmodel_R.dll'
+    sLibname = '../lib/libNUMmodel_R.dll'
 
   dyn.load(sLibname)
 }
@@ -175,10 +175,8 @@ simulateChemostatEuler = function(p=parametersChemostat(), bLosses=TRUE) {
   dummy = .Fortran("f_setupgeneralistsonly", as.integer(p$n))
   
   u0 = c(0.1*p$N0, p$DOC0, p$B0)
-  #uDeep = rep(0,p$n+2)
   uDeep = c(p$N0, 0)
   out = .Fortran("f_simulatechemostateuler",
-                 #nGrid=as.integer(length(u0)),
                  u = as.numeric(u0),
                  L=as.numeric(p$L), 
                  T=as.numeric(p$T),

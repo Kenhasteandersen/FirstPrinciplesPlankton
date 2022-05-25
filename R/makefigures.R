@@ -7,7 +7,7 @@ source("modelChemostat.R")
 #
 # Conditions for the two examples:
 #
-dOligotrophic = 0.0025 # Mixing
+dOligotrophic = 0.001 # Mixing
 LOligotrophic = 40 # Light
 dEutrophic = 0.1
 LEutrophic = 40
@@ -17,16 +17,16 @@ LEutrophic = 40
 # ===================================================
 
 plotAll = function() {
-  pdfplot("aL.pdf", plot_aL, width = 1.5*singlewidth, height=1.5*height)
-  pdfplot("aF.pdf", plot_aF, width = 1.5*singlewidth, height=1.5*height)
-  pdfplot("aN.pdf", plot_aN, width = 1.5*singlewidth, height=1.5*height)
-  pdfplot("Mumax.pdf", plotMumax, width = 1.5*singlewidth, height=1.5*height)
-  pdfplot("Rstar.pdf", plotRstar, width=singlewidth, height = height)
+  pdfplot("../aL.pdf", plot_aL, width = 1.5*singlewidth, height=1.5*height)
+  pdfplot("../aF.pdf", plot_aF, width = 1.5*singlewidth, height=1.5*height)
+  pdfplot("../aN.pdf", plot_aN, width = 1.5*singlewidth, height=1.5*height)
+  pdfplot("../Mumax.pdf", plotMumax, width = 1.5*singlewidth, height=1.5*height)
+  pdfplot("../Rstar.pdf", plotRstar, width=singlewidth, height = height)
   #pdfplot("../Mumax_corrected.pdf", plotMuAlphaCorrelation, width = 1.5*singlewidth, height=1.5*height)
   
   plotSimulationExamples()
   
-  pdfplot("Strategies.pdf", plotStrategies, 
+  pdfplot("../Strategies.pdf", plotStrategies, 
           width=singlewidth, height=3*height)
   
   pdfplot("SheldonComparison.pdf", plotSheldonComparison, width=doublewidth, height=doublewidth)
@@ -39,20 +39,20 @@ plotAll = function() {
   #plt
   #dev.off()
   
-  pdfplot("Functions.pdf", plotFunctions,n=40, width=doublewidth, height=2.5*height)
+  pdfplot("../Functions.pdf", plotFunctions,n=40, width=doublewidth, height=2.5*height)
   
-  pdfplot("GridPreference.pdf", plotGridPreference, width=1.5*singlewidth, height=height)
+  pdfplot("../GridPreference.pdf", plotGridPreference, width=1.5*singlewidth, height=height)
   
   #pdfplot("../Gridtest.pdf", plotGridtest, width=doublewidth, height=height)
   
-  pdfplot("DOC.pdf", plotDOC, width=doublewidth, height=1.75*height)
+  pdfplot("../DOC.pdf", plotDOC, width=doublewidth, height=1.75*height)
   
-  pdfplot("BacterialGenerationTime.pdf", 
+  pdfplot("../BacterialGenerationTime.pdf", 
           plotBacteriaGenerationTime_vs_area, height=height)
   
-  pdfplot("HTL.pdf", plotHTL, width=singlewidth, height=1.5*height)
+  pdfplot("../HTL.pdf", plotHTL, width=singlewidth, height=1.5*height)
   
-  pdfplot("Temperature.pdf", plotTemperature, width=doublewidth, height=2*height)
+  pdfplot("../Temperature.pdf", plotTemperature, width=doublewidth, height=2*height)
   
   #system("cp ../*pdf ../../dropbox")
 }
@@ -73,7 +73,7 @@ convertVolume2Mass = function(vol, taxon="other") {
   #
   # Taguchi
   #
-  #Ata=read.csv("data/Taguchi.dat",  header=FALSE, col.names=c("V ((mum)^3)", "err", "C (pgC", "CperChl", "alpha (mgC/(mg chlA) /h /W m^2)"), sep=" ")
+  #Ata=read.csv("../data/Taguchi.dat",  header=FALSE, col.names=c("V ((mum)^3)", "err", "C (pgC", "CperChl", "alpha (mgC/(mg chlA) /h /W m^2)"), sep=" ")
   #C = (Ata$C..pgC)*1e-6 # mugC
   #chl = 1e-3 * C/Ata$CperChl # mg chl
   #A = 24 * 1000* Ata$alpha * chl # mugC/d/(Wm2)
@@ -83,7 +83,7 @@ convertVolume2Mass = function(vol, taxon="other") {
   #
   # Edwards:
   #
-  Aed = read.csv("data/Data from Edwards et al (2015).csv", 
+  Aed = read.csv("../data/Data from Edwards et al (2015).csv", 
                  sep=";", skip=3, header=TRUE, na.strings = "na")
   C = convertVolume2Mass(Aed$volume, Aed$taxon)
   r = (Aed$volume*3/(4*pi))^(1/3)
@@ -160,7 +160,7 @@ plotMumax = function() {
   #
   # Edwards:
   #
-  Aed = read.csv("data/Data from Edwards et al (2015).csv", 
+  Aed = read.csv("../data/Data from Edwards et al (2015).csv", 
                  sep=";", skip=3, header=TRUE, na.strings = "na")
   C = convertVolume2Mass(Aed$volume, Aed$taxon)
   Aed$C =   C
@@ -174,7 +174,7 @@ plotMumax = function() {
   #
   # Kiørboe and hirst (2014):
   #
-  Akh = read.csv('data/Kiorboe and Hirst (2014) maximum growth rates.csv', 
+  Akh = read.csv('../data/Kiorboe and Hirst (2014) maximum growth rates.csv', 
                  sep=",", header=TRUE, skip=1, as.is=TRUE)
   Akh$Group[Akh$Group=="Dinoflagellates"] = "dinoflagellate"
   Akh$Group[Akh$Group=="Nanoflagellates (except dinoflagellates)"] = "nanoflagellate"
@@ -188,7 +188,7 @@ plotMumax = function() {
   #
   # Kirchman (2016) - but not max growth rates
   #
-  Ak = read.csv('data/ma08_kirchman_supappendix3.csv',
+  Ak = read.csv('../data/ma08_kirchman_supappendix3.csv',
                 sep=",", header=TRUE, skip=15)
   Ak = Ak[1:149,]
   # Sort out incomplete entries:
@@ -203,7 +203,7 @@ plotMumax = function() {
   #
   # Rose and Caron (2007)
   #
-  Arc = read.csv('data/Rose and Caron bacterivores.csv',
+  Arc = read.csv('../data/Rose and Caron bacterivores.csv',
                  sep=",", header=TRUE)
   Arc$volume = as.numeric( gsub(",","", as.character(Arc$volume)) )
   # Correct to 10 degrees with a Q10 of 2.8
@@ -215,7 +215,7 @@ plotMumax = function() {
     C = convertVolume2Mass(Arc$volume),
     mu_max=as.numeric(Arc$Growth.Rate)))
   
-  Arc = read.csv('data/Rose and Caron herbivores.csv',
+  Arc = read.csv('../data/Rose and Caron herbivores.csv',
                  sep=",", header=TRUE)
   Arc$volume = as.numeric( gsub(",","", as.character(Arc$volume)) )
   # Correct to 10 degrees with a Q10 of 2.8
@@ -249,7 +249,7 @@ plotMumax = function() {
   
   defaultplot()
   semilogxpanel(xlim = c(1e-9,1), ylim = A$mu_max,
-                xlab="Cell weight ($\\mu$gC)",
+                xlab="Cell weight ($\\mu$g$_C$)",
                 ylab="max growth rate ($d^{-1}$)")
   #points(A$C[ixHeterotroph], A$mu_max[ixHeterotroph], pch=16, col="red")
   points(A$C[ixMixotroph], A$mu_max[ixMixotroph], pch=16, col="blue")
@@ -296,7 +296,7 @@ plotMuAlphaCorrelation = function() {
   #
   # Edwards:
   #
-  Aed = read.csv("data/Data from Edwards et al (2015).csv", 
+  Aed = read.csv("../data/Data from Edwards et al (2015).csv", 
                  sep=";", skip=3, header=TRUE, na.strings = "na")
   C = convertVolume2Mass(Aed$volume, Aed$taxon)
   Aed$C = C
@@ -359,7 +359,7 @@ plotMuAlphaCorrelation = function() {
 
 
 plot_aF = function() {
-  dat <- read.csv("data/TK Appendix feeding rates - revised.csv",header=TRUE,sep=";")
+  dat <- read.csv("../data/TK Appendix feeding rates - revised.csv",header=TRUE,sep=";")
   data = data.frame(w=1e3*dat$Body.mass, beta=24*0.001*dat$Fmax.1, Group=dat$Group)  
   
   ixProtist = (data$Group=="Nanoflagellates") | 
@@ -377,7 +377,7 @@ plot_aF = function() {
   defaultplot()
   loglogpanel(xlim=c(1e-6, 1), ylim=c(1e-4,1),
               xlab = "Mass (${\\mu}g_C$)", 
-              ylab="Specfic clearance rate $\\textit{a}_F (L/d/\\mu gC)$")
+              ylab="Specific clearance rate $\\textit{a}_F (L/d/\\mu g_C)$")
   points(data$w[ixProtist], data$beta[ixProtist]/data$w[ixProtist], pch=16)
   w = 10^seq(-7,1)
   lines(w, SpecificBeta*w/w, lwd=2)
@@ -386,7 +386,7 @@ plot_aF = function() {
 # Plot specific affinity:
 #
 plot_aN = function() {
-  dat = read.csv("data/Nutrient data from Edwards et al (2015b).csv",
+  dat = read.csv("../data/Nutrient data from Edwards et al (2015b).csv",
                  header=TRUE,sep=",")
   #
   # Convert carbon from mol to g:
@@ -447,7 +447,7 @@ plot_aN = function() {
   Diff = 1.5e-5*60*60*24 # cm^2/day, at 10 degrees (https://www.unisense.com/files/PDF/Diverse/Seawater%20&%20Gases%20table.pdf)
   rho = 0.40 #  g/cm3 Menden-Deuer (2000). If we assume that m propto V we get approximately rho = 0.4e-6 ugC/um^3. // 0.57 # g/cm3 (Andersen et al 2016; rho = m/V = 0.3*d^3/(4/3*pi*(d/2)^3) )
   aNmax = 3*Diff*1e8*1e-3/rho * 1e-6 # L/day/mugC
-  rstar = 2; # mum
+  rstar = parametersChemostat()$rNstar; # mum
   corr = 1 - parameters()$c*calcMass(r)^(-1/3)
   #cat("alphaN_max = ", (ANmax/m^(1/3))[1], "\n")
   #lines(m, ANmax/m, lwd=1, lty=dotted)  
@@ -506,9 +506,9 @@ plotRstar = function() {
       cex.lab=cex,
       oma=c(0, 0, 2, 0) + 0.1)
   loglogpanel(xlim=r, 
-              ylim=c(0.007,200),
+              ylim=c(0.0007,200),
               xlab = "Cell radius ($\\mu$m)",
-              ylab = "Limiting concentration ($\\mu$M) or ($\\mu$mol/m$^2$/s)")
+              ylab = "Lim. conc. ($\\mu$M) or ($\\mu$mol/m$^2$/s)")
   
   rmin = -((p$cLeakage + 3*p$alphaJ*p$delta)/(p$jR - p$alphaJ))
   polygon(c(0.01, rmin, rmin,0.011), c(0.0001,0.00011,2000,2000), 
@@ -638,14 +638,14 @@ plotStrategies = function(n=50) {
   p$N0 = 1
   p$L = 30
   p$B0 = rep(1,p$n)/log(p$Delta)
-  p$DOC0 = 1
+  p$DOC0 = .2
   #
   # Variations:
   #
   L = 10^seq(1,2,length.out=n)
-  Bsheldon = t((10^seq(0,2,length.out=n)) %*% t(rep(1,length.out=p$n)))
+  Bsheldon = t((10^seq(-.5,1.5,length.out=n)) %*% t(rep(1,length.out=p$n)))
   N = 10^seq(-1,1,length.out=n)
-  DOC = 10^seq(-1,1,length.out=n)
+  DOC = 10^seq(-1.5,0.5,length.out=n)
   ones = rep(1,n)
   #
   # Plot of gains:
@@ -685,7 +685,7 @@ plotStrategies = function(n=50) {
   panelStrategies(p,p$N0*ones,L,p$B0 %*% t(ones),p$DOC0*ones,y=L,
                   'Light ($\\mu E/m^2/s$)')
   hline(p$L)
-  panelStrategies(p,p$N0*ones,p$L*ones,Bsheldon,p$DOC0*ones,y=Bsheldon[1,],'B_{Sheldon}')
+  panelStrategies(p,p$N0*ones,p$L*ones,Bsheldon,p$DOC0*ones,y=Bsheldon[1,],'$B_{Sheldon}$ ($\\mu$g$_C$/l)')
   hline(p$B0[1])
   panelStrategies(p,p$N0*ones,p$L*ones,p$B0 %*% t(ones),DOC,y=DOC,
                   'DOC ($\\mu g_C/l$)','Cell mass ($\\mu g_C$)',
@@ -712,12 +712,12 @@ plotSimulationExamples = function() {
     r = sim$rates
     
     if (bXlabel)
-      xlab = "Carbon mass ($\\mu$gC)"
+      xlab = "Carbon mass ($\\mu$g$_C$)"
     else
       xlab = ""
     loglogpanel(xlim=p$m, ylim=ylim, xaxis = bXlabel,
                 xlab=xlab,
-                ylab="Sheldon biomass ($\\mu$gC/l)")
+                ylab="Sheldon biomass ($\\mu$g$_C$/l)")
     
     lines(m, B, lwd=4)
     if (p$n<15)
@@ -803,7 +803,7 @@ plotSimulationExamples = function() {
       ylim = c(-0.5,0.5)
     
     semilogxpanel(xlim=p$m, ylim=ylim,
-                  xlab="Carbon mass ($\\mu$gC)",
+                  xlab="Carbon mass ($\\mu$g$_C$)",
                   ylab="Rates (1/day)",
                   xaxis=bXaxis)
     calcStrategy(p,r,bPlot=TRUE, ylim=ylim)
@@ -965,7 +965,7 @@ calcFunctions = function(sim) {
   return(func)
 }
 
-plotFunctions = function(L=c(30, 100), n=10) {
+plotFunctions = function(L=c(10, 100), n=10) {
   
   panelsFunctions = function(L, n=10, yaxis=TRUE) {
     d = 10^seq(-3,0,length.out = n) #seq(0.02,2,length.out=n) #
@@ -1077,6 +1077,8 @@ plotFunctions = function(L=c(30, 100), n=10) {
   func= panelsFunctions(L=L[1],n=n)
   
   panelsFunctions(L=L[2], yaxis=FALSE,n=n)
+  
+  text(0.001,-0.15,TeX('Mixing rate (day$^{-1}$)'),xpd=NA)
 }
 
 plotGridPreference = function(p = parameters()) {
@@ -1396,7 +1398,7 @@ plotBacteriaGenerationTime_vs_area = function(p=parametersChemostat(),
   #new = data.frame(area=log(seq(0,1e9,length.out=100)))
   #lines(exp(new$area), exp(predict(fit,new)))
   
-  x = seq(5e7,4e8,length.out=100)
+  x = seq(2e7,4e8,length.out=100)
   lines(x, factor*x^-0.82)
 }
 
@@ -1409,7 +1411,7 @@ plotHTL = function(d=dEutrophic, L=LEutrophic) {
   defaultplot(mfcol=c(2,1))
   loglogpanel(xlim=p$m, ylim=c(0.2,200), 
               xlab = 'Mass ($\\mu g_C$)',
-              ylab = 'Sheldon biomass ($\\mu$gC/l)')
+              ylab = 'Sheldon biomass ($\\mu$g$_C$/l)')
   polygon(c(p$mHTL, 1, 1, p$mHTL), c(.2,.2,200,200), col=lightgrey, border=NA)
   
   B = NA
@@ -1429,7 +1431,7 @@ plotHTL = function(d=dEutrophic, L=LEutrophic) {
   }
   ribbon(x=p$m, ymin=0*p$m+0.01, ymax=10^(p$mortHTLm-2))
   
-  defaultpanel(xlim=mHTL, ylim=c(0,100*floor(1.8*max(NPP)/100)+1),
+  defaultpanel(xlim=mHTL, ylim=c(0,100*floor(2.2*max(NPP)/100)+1),
                xlab="Higher trophic level mortality $\\mu_{htl}$ (day$^{-1}$)")
   
   lines(mHTL, B, lwd=2)
@@ -1450,7 +1452,7 @@ plotTemperature = function(n=50) {
     p = parametersChemostat(parameters(n))
     p$d = d
     p$L = L
-    T = seq(0,25,length.out=30)
+    T = seq(0,30,length.out=30)
     #
     # Simulate temperature increase:
     #
@@ -1482,7 +1484,7 @@ plotTemperature = function(n=50) {
     ylab = ""
     if (bLegend)
       ylab = "Division rate  $\\textit{j}_{net} (yr^{-1})$"
-    semilogypanel(xlim=T,ylim=c(0.05,2),
+    semilogypanel(xlim=T,ylim=c(0.02,2),
                   ylab=ylab, xaxis=FALSE, yaxis=bLegend)
     # Reference lines:
     lines(T, 0.3*fTemp(1.25,T,0),col="red")
