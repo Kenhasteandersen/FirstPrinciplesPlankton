@@ -29,7 +29,7 @@ plotAll = function() {
   pdfplot("../Strategies.pdf", plotStrategies, 
           width=singlewidth, height=3*height)
   
-  pdfplot("SheldonComparison.pdf", plotSheldonComparison, width=doublewidth, height=doublewidth)
+  pdfplot("../SheldonComparison.pdf", plotSheldonComparison, width=doublewidth, height=doublewidth)
   
   #fontsize = trellis.par.get("fontsize")
   #fontsize$text = 10
@@ -156,207 +156,20 @@ convertVolume2Mass = function(vol, taxon="other") {
 }
 
 
-plotMumax = function() {
-  #
-  # Edwards:
-  #
-  Aed = read.csv("../data/Data from Edwards et al (2015).csv", 
-                 sep=";", skip=3, header=TRUE, na.strings = "na")
-  C = convertVolume2Mass(Aed$volume, Aed$taxon)
-  Aed$C =   C
-  # Sort our nans:
-  Aed = Aed[!is.na(Aed$C), ]
-  # Correct to 10 degrees with a Q10 of 1.5
-  Aed$mu_max = Aed$mu_max * 1.5^((10-Aed$temperature)/10)
-  
-  A = data.frame(species=Aed$species, taxon=as.factor(Aed$taxon), 
-                 C=Aed$C, mu_max=Aed$mu_max)
-  #
-  # Kiørboe and hirst (2014):
-  #
-  Akh = read.csv('../data/Kiorboe and Hirst (2014) maximum growth rates.csv', 
-                 sep=",", header=TRUE, skip=1, as.is=TRUE)
-  Akh$Group[Akh$Group=="Dinoflagellates"] = "dinoflagellate"
-  Akh$Group[Akh$Group=="Nanoflagellates (except dinoflagellates)"] = "nanoflagellate"
-  Akh$Group[Akh$Group=="Ciliates"] = "ciliate"
-  # Correct from 15 to 10 degrees with a Q10 of 2.8
-  Akh$Specific.growth.1 = Akh$Specific.growth.1 * 2.8^((10-15)/10)
-  
-  A = rbind(A, 
-            data.frame(species=Akh$Species, taxon=as.factor(Akh$Group),
-                       C=Akh$Body.Mass*1000, mu_max=Akh$Specific.growth.1*24))
-  #
-  # Kirchman (2016) - but not max growth rates
-  #
-  Ak = read.csv('../data/ma08_kirchman_supappendix3.csv',
-                sep=",", header=TRUE, skip=15)
-  Ak = Ak[1:149,]
-  # Sort out incomplete entries:
-  Ak = Ak[Ak[,7]!="Used biovol*",]
-  Ak = Ak[!is.na(Ak[,5]),]
-  
-  A = rbind(A,
-            data.frame(species="NA",
-                       taxon="bacteria", 
-                       C=as.numeric(as.character(Ak$fgC.cell))*1e-9, 
-                       mu_max=as.numeric(Ak$Rate...d.)))
-  #
-  # Rose and Caron (2007)
-  #
-  Arc = read.csv('../data/Rose and Caron bacterivores.csv',
-                 sep=",", header=TRUE)
-  Arc$volume = as.numeric( gsub(",","", as.character(Arc$volume)) )
-  # Correct to 10 degrees with a Q10 of 2.8
-  Arc$Growth.Rate = Arc$Growth.Rate * 2.8^((10-Arc$Temperature)/10)
-  
-  A = rbind(A, data.frame(
-    species="NA",
-    taxon="bacterivore",
-    C = convertVolume2Mass(Arc$volume),
-    mu_max=as.numeric(Arc$Growth.Rate)))
-  
-  Arc = read.csv('../data/Rose and Caron herbivores.csv',
-                 sep=",", header=TRUE)
-  Arc$volume = as.numeric( gsub(",","", as.character(Arc$volume)) )
-  # Correct to 10 degrees with a Q10 of 2.8
-  Arc$Growth.Rate = Arc$Growth.Rate * 2.8^((10-Arc$Temperature)/10)
-  
-  A = rbind(A,data.frame(
-    species="NA",
-    taxon="herbivore",
-    C = convertVolume2Mass(Arc$volume),
-    mu_max = as.numeric(Arc$Growth.Rate)))
-  #
-  # Define groups:
-  #
-  ixDiatom = A$taxon=="diatom"
-  ixMixotroph = A$taxon=="nanoflagellate" | A$taxon=="dinoflagellate" | A$taxon=="ciliate" | A$taxon=="bacteriovore"
-  ixHeterotroph = A$taxon=="herbivore" 
-  ixBacteria = A$taxon=="bacteria"
-  ixPhototroph = !ixDiatom & !ixMixotroph  &!ixBacteria &
-    A$taxon!="bacterivore" & A$taxon!="herbivore"
-  #
-  # Fits
-  #
-  #fit_diatoms = lm(log(mu_max) ~ log(C), data=A[ixDiatom,])
-  #fit_mixotrophs = lm(log(mu_max) ~ log(C), data=A[ixMixotroph,])
-  #fit_heterotrophs = lm(log(mu_max) ~ log(C), data=A[ixHeterotroph,])
-  #fit_phototrophs = lm(log(mu_max) ~ log(C), data=A[ixPhototroph,])
-  
-  #fit = nls(mu_max ~ (1-parameters()$c * C^(-1/3))*mu/(mu*c*C^0.3333+1), 
-  #          data=A[!ixBacteria,],
-  #          start=list(mu=1, c=1))
-  
-  defaultplot()
-  semilogxpanel(xlim = c(1e-9,1), ylim = A$mu_max,
-                xlab="Cell weight ($\\mu$g$_C$)",
-                ylab="max growth rate ($d^{-1}$)")
-  #points(A$C[ixHeterotroph], A$mu_max[ixHeterotroph], pch=16, col="red")
-  points(A$C[ixMixotroph], A$mu_max[ixMixotroph], pch=16, col="blue")
-  points(A$C[A$taxon=="bacterivore"], A$mu_max[A$taxon=="bacterivore"], pch=1, col="blue", cex=.1)
-  points(A$C[A$taxon=="herbivore"], A$mu_max[A$taxon=="herbivore"], pch=1, col="red", cex=0.1)
-  points(A$C[ixPhototroph], A$mu_max[ixPhototroph], pch=16, col="green")
-  points(A$C[ixDiatom], A$mu_max[ixDiatom], pch=16, col="darkgreen")
-  points(A$C[ixBacteria], A$mu_max[ixBacteria], pch=1, col="brown", cex=0.1)
-  
-  
-  C = 10^seq(-9, log10(max(A$C)), length.out = 100)
-  #lines(C, exp(predict(fit_diatoms, list(C=C))), col="darkgreen")
-  #lines(C, exp(predict(fit_mixotrophs, list(C=C))), col="blue")
-  #lines(C, exp(predict(fit_heterotrophs, list(C=C))), col="red")
-  #lines(C, exp(predict(fit_phototrophs, list(C=C))), col="green")
-  
-  m = 10^seq(-9,1,length.out = 100)
-  lines(m, parameters()$alphaJ*(1-parameters()$c * m^(-1/3)), lwd=3)
-  #lines(m, parameters()$alphaJ*(1-parameters()$c * m^(-1/3)) - parameters()$cR, lwd=2)
-  #lines(C, predict(fit, list(C=C)))
-  
-  # Add the used curve:
-  p = parameters()
-  #lines(p$m, p$Jmax/p$m, col="black", lwd=2)
-  
-  # Maximum uptake of phagotrophy:
-  lines(p$m, p$jFmaxm, col="red", lwd=2)
-  
-  # Camila
-  #lines(C, 0.12*C^-0.25, col="orange", lwd=1)
-  #lines(C, (0.12-0.03)*C^-0.25, col="orange", lwd=2)
-  
-  legend(x="topleft", bty="n",
-         legend=c("Diatoms","Other phototrophs",
-                  "Mixotrophs","Heterotrophs",
-                  "Bacteria","Model","Max. phagotrophy"),
-         lty=c(NA,NA,NA,NA,NA,solid,solid),
-         pch=c(16,16,16,16,16,NA,NA),
-         lwd=c(0,0,0,0,0,2,2),
-         col=c("darkgreen","green","blue","red","brown","black","red"))
-}
 
-plotMuAlphaCorrelation = function() {
-  #
-  # Edwards:
-  #
-  Aed = read.csv("../data/Data from Edwards et al (2015).csv", 
-                 sep=";", skip=3, header=TRUE, na.strings = "na")
-  C = convertVolume2Mass(Aed$volume, Aed$taxon)
-  Aed$C = C
-  
-  A = (Aed$alpha * 4.15) * C * (Aed$daylength/24)
-  data = data.frame(C=C, taxon=Aed$taxon, A=A, mumax=Aed$mu_max)
-  #
-  # Sort our nans:
-  #
-  data = data[(!is.na(data$A) & !is.na(data$C)), ]
-  ixDiatom = data$taxon=="diatom"
-  data = data[ixDiatom,]
-  #
-  # Fits:
-  #
-  fit_mu = lm(log(mumax) ~ log(C), data=data)
-  form = formula(log(A) ~ log( Cmax*C * a*C^(2/3) / (Cmax*C + a*C^(2/3))))
-  fit_alpha = nls(form,
-                  data = data,
-                  start = list(Cmax = .001, a=0.001),
-                  lower=list(Cmax=1e-20, a=1e-20), algorithm="port")
-  #
-  # Plot corrected values (using residuals)
-  #
-  defaultplot(mfcol=c(1,2))
-  loglogpanel(xlim=c(0.1,10),ylim=c(0.1,10),
-              xlab="Residual light-affinity",
-              ylab="Residual $\\mu_{max}$")
-  x = data$A/exp(predict(fit_alpha, list(C=data$C)))
-  y = data$mumax/exp(predict(fit_mu, list(C=data$C)))
-  points(x[ixDiatom], y[ixDiatom], pch=16, col="red")
-  points(x[!ixDiatom], y[!ixDiatom], pch=16, col="blue")
-  
-  #lines(c(0.1,10), c(0.1,10),lty=dotted)     
-  
-  fit = lm(log(x) ~ log(y))
-  xx = 10^seq(-1,2,length.out = 100)
-  #lines(xx, exp(fit$coefficients[1])*xx^fit$coefficients[2])
-  legend(x="topleft", pch=16, col=c("red","blue"),
-         legend=c("Diatoms","Others"))
-  #
-  # Plot mass-specific values
-  #
-  loglogpanel(xlim=c(0.001,2),ylim=c(0.1,5),
-              xlab="Specific light-affinity",
-              ylab="Specific $\\mu_{max}$")
-  x = data$A/data$C
-  y = data$mumax
-  points(x[ixDiatom], y[ixDiatom], pch=16, col="red")
-  points(x[!ixDiatom], y[!ixDiatom], pch=16, col="blue")
-  
-  #lines(c(0.1,10), c(0.1,10),lty=dotted)     
-  legend(x="topleft", pch=16, col=c("red","blue"),
-         legend=c("Diatoms","Others"))
-  
-  fit = lm(log(x) ~ log(y))
-  xx = 10^seq(-3,1,length.out = 100)
-  #lines(xx, exp(fit$coefficients[1])*xx^fit$coefficients[2])
-}
 
+makeDiameterAxis = function(d = 10^seq(-2,3,by=1), labels=c("0.01","0.1","1","10","100","1e3")) {
+  # 
+  # Add extra size labels
+  #
+  axis(side=3, line=0,
+       at=calcMass(d/2),# 0.3e6*d^3,
+       labels = labels)
+  xlim = par()$xaxp
+  xpos = exp( log(xlim[1])+0.5*(log(xlim[2])-log(xlim[1])))#  1e-3
+  mtext(TeX("Diameter ($\\mu$m)"), side=3, line=0.75, 
+        at=xpos,cex=cex)
+}
 
 plot_aF = function() {
   dat <- read.csv("../data/TK Appendix feeding rates - revised.csv",header=TRUE,sep=";")
@@ -375,12 +188,17 @@ plot_aF = function() {
   cat(c("aF = ", SpecificBeta, "L/day/mugC\n"))
   
   defaultplot()
+  par(cex.axis=cex,
+      cex.lab=cex,
+      oma=c(0, 0, 2.2, 0.5) + 0.1)
+  
   loglogpanel(xlim=c(1e-6, 1), ylim=c(1e-4,1),
               xlab = "Mass (${\\mu}g_C$)", 
               ylab="Specific clearance rate $\\textit{a}_F (L/d/\\mu g_C)$")
   points(data$w[ixProtist], data$beta[ixProtist]/data$w[ixProtist], pch=16)
   w = 10^seq(-7,1)
   lines(w, SpecificBeta*w/w, lwd=2)
+  makeDiameterAxis(d=c(1,2,5,10,20,50,100,1000), labels=c("1","2","5","10","20","50","100","1000"))
 }
 #
 # Plot specific affinity:
@@ -489,6 +307,213 @@ plot_aN = function() {
   #m = 0.3e-6*(2*r)^3
   #ANmax = 4*pi*Diff*(r*1e-4) * 1e-3
   #points(m, ANmax, col="red")
+}
+
+plotMumax = function() {
+  #
+  # Edwards:
+  #
+  Aed = read.csv("../data/Data from Edwards et al (2015).csv", 
+                 sep=";", skip=3, header=TRUE, na.strings = "na")
+  C = convertVolume2Mass(Aed$volume, Aed$taxon)
+  Aed$C =   C
+  # Sort our nans:
+  Aed = Aed[!is.na(Aed$C), ]
+  # Correct to 10 degrees with a Q10 of 1.5
+  Aed$mu_max = Aed$mu_max * 1.5^((10-Aed$temperature)/10)
+  
+  A = data.frame(species=Aed$species, taxon=as.factor(Aed$taxon), 
+                 C=Aed$C, mu_max=Aed$mu_max)
+  #
+  # Kiørboe and hirst (2014):
+  #
+  Akh = read.csv('../data/Kiorboe and Hirst (2014) maximum growth rates.csv', 
+                 sep=",", header=TRUE, skip=1, as.is=TRUE)
+  Akh$Group[Akh$Group=="Dinoflagellates"] = "dinoflagellate"
+  Akh$Group[Akh$Group=="Nanoflagellates (except dinoflagellates)"] = "nanoflagellate"
+  Akh$Group[Akh$Group=="Ciliates"] = "ciliate"
+  # Correct from 15 to 10 degrees with a Q10 of 2.8
+  Akh$Specific.growth.1 = Akh$Specific.growth.1 * 2.8^((10-15)/10)
+  
+  A = rbind(A, 
+            data.frame(species=Akh$Species, taxon=as.factor(Akh$Group),
+                       C=Akh$Body.Mass*1000, mu_max=Akh$Specific.growth.1*24))
+  #
+  # Kirchman (2016) - but not max growth rates
+  #
+  Ak = read.csv('../data/ma08_kirchman_supappendix3.csv',
+                sep=",", header=TRUE, skip=15)
+  Ak = Ak[1:149,]
+  # Sort out incomplete entries:
+  Ak = Ak[Ak[,7]!="Used biovol*",]
+  Ak = Ak[!is.na(Ak[,5]),]
+  
+  A = rbind(A,
+            data.frame(species="NA",
+                       taxon="bacteria", 
+                       C=as.numeric(as.character(Ak$fgC.cell))*1e-9, 
+                       mu_max=as.numeric(Ak$Rate...d.)))
+  #
+  # Rose and Caron (2007)
+  #
+  Arc = read.csv('../data/Rose and Caron bacterivores.csv',
+                 sep=",", header=TRUE)
+  Arc$volume = as.numeric( gsub(",","", as.character(Arc$volume)) )
+  # Correct to 10 degrees with a Q10 of 2.8
+  Arc$Growth.Rate = Arc$Growth.Rate * 2.8^((10-Arc$Temperature)/10)
+  
+  A = rbind(A, data.frame(
+    species="NA",
+    taxon="bacterivore",
+    C = convertVolume2Mass(Arc$volume),
+    mu_max=as.numeric(Arc$Growth.Rate)))
+  
+  Arc = read.csv('../data/Rose and Caron herbivores.csv',
+                 sep=",", header=TRUE)
+  Arc$volume = as.numeric( gsub(",","", as.character(Arc$volume)) )
+  # Correct to 10 degrees with a Q10 of 2.8
+  Arc$Growth.Rate = Arc$Growth.Rate * 2.8^((10-Arc$Temperature)/10)
+  
+  A = rbind(A,data.frame(
+    species="NA",
+    taxon="herbivore",
+    C = convertVolume2Mass(Arc$volume),
+    mu_max = as.numeric(Arc$Growth.Rate)))
+  #
+  # Define groups:
+  #
+  ixDiatom = A$taxon=="diatom"
+  ixMixotroph = A$taxon=="nanoflagellate" | A$taxon=="dinoflagellate" | A$taxon=="ciliate" | A$taxon=="bacteriovore"
+  ixHeterotroph = A$taxon=="herbivore" 
+  ixBacteria = A$taxon=="bacteria"
+  ixPhototroph = !ixDiatom & !ixMixotroph  &!ixBacteria &
+    A$taxon!="bacterivore" & A$taxon!="herbivore"
+  #
+  # Fits
+  #
+  #fit_diatoms = lm(log(mu_max) ~ log(C), data=A[ixDiatom,])
+  #fit_mixotrophs = lm(log(mu_max) ~ log(C), data=A[ixMixotroph,])
+  #fit_heterotrophs = lm(log(mu_max) ~ log(C), data=A[ixHeterotroph,])
+  #fit_phototrophs = lm(log(mu_max) ~ log(C), data=A[ixPhototroph,])
+  
+  #fit = nls(mu_max ~ (1-parameters()$c * C^(-1/3))*mu/(mu*c*C^0.3333+1), 
+  #          data=A[!ixBacteria,],
+  #          start=list(mu=1, c=1))
+  
+  defaultplot()
+  par(cex.axis=cex,
+      cex.lab=cex,
+      oma=c(0, 0, 2.2, 0.5) + 0.1)
+  
+  semilogxpanel(xlim = c(1e-9,1), ylim = A$mu_max,
+                xlab="Cell weight ($\\mu$g$_C$)",
+                ylab="max growth rate ($d^{-1}$)")
+  makeDiameterAxis()#d=c(1,2,5,10,20,50,100,1000), labels=c("1","2","5","10","20","50","100","1000"))
+  
+  #points(A$C[ixHeterotroph], A$mu_max[ixHeterotroph], pch=16, col="red")
+  points(A$C[ixMixotroph], A$mu_max[ixMixotroph], pch=16, col="blue")
+  points(A$C[A$taxon=="bacterivore"], A$mu_max[A$taxon=="bacterivore"], pch=1, col="blue", cex=.1)
+  points(A$C[A$taxon=="herbivore"], A$mu_max[A$taxon=="herbivore"], pch=1, col="red", cex=0.1)
+  points(A$C[ixPhototroph], A$mu_max[ixPhototroph], pch=16, col="green")
+  points(A$C[ixDiatom], A$mu_max[ixDiatom], pch=16, col="darkgreen")
+  points(A$C[ixBacteria], A$mu_max[ixBacteria], pch=1, col="brown", cex=0.1)
+  
+  
+  C = 10^seq(-9, log10(max(A$C)), length.out = 100)
+  #lines(C, exp(predict(fit_diatoms, list(C=C))), col="darkgreen")
+  #lines(C, exp(predict(fit_mixotrophs, list(C=C))), col="blue")
+  #lines(C, exp(predict(fit_heterotrophs, list(C=C))), col="red")
+  #lines(C, exp(predict(fit_phototrophs, list(C=C))), col="green")
+  
+  m = 10^seq(-9,1,length.out = 100)
+  lines(m, parameters()$alphaJ*(1-parameters()$c * m^(-1/3)), lwd=3)
+  #lines(m, parameters()$alphaJ*(1-parameters()$c * m^(-1/3)) - parameters()$cR, lwd=2)
+  #lines(C, predict(fit, list(C=C)))
+  
+  # Add the used curve:
+  p = parameters()
+  #lines(p$m, p$Jmax/p$m, col="black", lwd=2)
+  
+  # Maximum uptake of phagotrophy:
+  lines(p$m, p$jFmaxm, col="red", lwd=2)
+  
+  # Camila
+  #lines(C, 0.12*C^-0.25, col="orange", lwd=1)
+  #lines(C, (0.12-0.03)*C^-0.25, col="orange", lwd=2)
+  
+  legend(x="topleft", bty="n",
+         legend=c("Diatoms","Other phototrophs",
+                  "Mixotrophs","Heterotrophs",
+                  "Bacteria","Model","Max. phagotrophy"),
+         lty=c(NA,NA,NA,NA,NA,solid,solid),
+         pch=c(16,16,16,16,16,NA,NA),
+         lwd=c(0,0,0,0,0,2,2),
+         col=c("darkgreen","green","blue","red","brown","black","red"))
+}
+
+plotMuAlphaCorrelation = function() {
+  #
+  # Edwards:
+  #
+  Aed = read.csv("../data/Data from Edwards et al (2015).csv", 
+                 sep=";", skip=3, header=TRUE, na.strings = "na")
+  C = convertVolume2Mass(Aed$volume, Aed$taxon)
+  Aed$C = C
+  
+  A = (Aed$alpha * 4.15) * C * (Aed$daylength/24)
+  data = data.frame(C=C, taxon=Aed$taxon, A=A, mumax=Aed$mu_max)
+  #
+  # Sort our nans:
+  #
+  data = data[(!is.na(data$A) & !is.na(data$C)), ]
+  ixDiatom = data$taxon=="diatom"
+  data = data[ixDiatom,]
+  #
+  # Fits:
+  #
+  fit_mu = lm(log(mumax) ~ log(C), data=data)
+  form = formula(log(A) ~ log( Cmax*C * a*C^(2/3) / (Cmax*C + a*C^(2/3))))
+  fit_alpha = nls(form,
+                  data = data,
+                  start = list(Cmax = .001, a=0.001),
+                  lower=list(Cmax=1e-20, a=1e-20), algorithm="port")
+  #
+  # Plot corrected values (using residuals)
+  #
+  defaultplot(mfcol=c(1,2))
+  loglogpanel(xlim=c(0.1,10),ylim=c(0.1,10),
+              xlab="Residual light-affinity",
+              ylab="Residual $\\mu_{max}$")
+  x = data$A/exp(predict(fit_alpha, list(C=data$C)))
+  y = data$mumax/exp(predict(fit_mu, list(C=data$C)))
+  points(x[ixDiatom], y[ixDiatom], pch=16, col="red")
+  points(x[!ixDiatom], y[!ixDiatom], pch=16, col="blue")
+  
+  #lines(c(0.1,10), c(0.1,10),lty=dotted)     
+  
+  fit = lm(log(x) ~ log(y))
+  xx = 10^seq(-1,2,length.out = 100)
+  #lines(xx, exp(fit$coefficients[1])*xx^fit$coefficients[2])
+  legend(x="topleft", pch=16, col=c("red","blue"),
+         legend=c("Diatoms","Others"))
+  #
+  # Plot mass-specific values
+  #
+  loglogpanel(xlim=c(0.001,2),ylim=c(0.1,5),
+              xlab="Specific light-affinity",
+              ylab="Specific $\\mu_{max}$")
+  x = data$A/data$C
+  y = data$mumax
+  points(x[ixDiatom], y[ixDiatom], pch=16, col="red")
+  points(x[!ixDiatom], y[!ixDiatom], pch=16, col="blue")
+  
+  #lines(c(0.1,10), c(0.1,10),lty=dotted)     
+  legend(x="topleft", pch=16, col=c("red","blue"),
+         legend=c("Diatoms","Others"))
+  
+  fit = lm(log(x) ~ log(y))
+  xx = 10^seq(-3,1,length.out = 100)
+  #lines(xx, exp(fit$coefficients[1])*xx^fit$coefficients[2])
 }
 
 
@@ -651,6 +676,9 @@ plotStrategies = function(n=50) {
   # Plot of gains:
   #
   defaultplot(mfcol=c(5,1))
+  par(#cex.axis=cex,
+      #cex.lab=cex,
+      oma=c(0, 0, 2.2, 0.5) + 0.1)
   
   derivativeF(t,c(p$N0,p$DOC0,p$B0),p)
   rates = getFrates(p)
@@ -670,6 +698,7 @@ plotStrategies = function(n=50) {
   lines(p$m, r$jDOC, lwd=2, col="brown")
   lines(p$m, r$jF,lwd=2,col="red")
   makepanellabel()
+  makeDiameterAxis()
   
   # legend(x="topright", cex=cex,
   #         legend=c("Light harvesting","Nutrient uptake","DOC uptake","Food consumption"),
@@ -1167,15 +1196,25 @@ plotSheldonComparison = function(L = 100, n=20) {
   fit$d = d
   
   defaultplot(mfcol=c(3,2))
+  par(#cex.axis=cex,
+      #cex.lab=cex,
+      oma=c(0, 0, 2.2, 0.5) + 0.1)
   #
   # Three examples:
   #
   iSamples = c(3,9,17)
   for (i in iSamples) {
     #loglogpanel(xlim=p$m, ylim=c(1e-3,10))
-    calcSheldonFit(sim[[i]], TRUE)
+    if (i == iSamples[3])
+      calcSheldonFit(sim[[i]], TRUE, bXaxis = TRUE)
+    else
+      calcSheldonFit(sim[[i]], TRUE, bXaxis = FALSE)
+    
+    if (i == iSamples[1]) 
+      makeDiameterAxis()
+      
     makepanellabel()
-    # ylab=""
+        # ylab=""
     # if (i==2)
     #   ylab="Sheldon spectrum (${$gC/l)"
     # xlab=""
@@ -1194,7 +1233,7 @@ plotSheldonComparison = function(L = 100, n=20) {
   }
   
   loglogpanel(xlim=d, ylim=c(0.01,1e3), 
-              ylab="Height ($\\kappa$)")
+              ylab="Height ($\\kappa$)", xaxis = FALSE)
   lines(d,fit$kappa,lwd=3)
   lines(d,fit$kappaTheo,lty=dashed)
   vertlines()
@@ -1203,7 +1242,7 @@ plotSheldonComparison = function(L = 100, n=20) {
   # Lambda
   #
   semilogxpanel(xlim=d, ylim=c(-1,0.5),
-                ylab="Slope ($\\lambda$)")
+                ylab="Slope ($\\lambda$)", xaxis=FALSE)
   lines(d, -fit$lambda, lwd=3)
   lines(d, d*0, lty=dashed)
   makepanellabel()
@@ -1298,6 +1337,8 @@ plotDOC = function() {
     loglogpanel(xlim=m, xlab="Carbon mass ($\\mu$gC)",
                 ylim=c(0.001,10000000), 
                 ylab=ylab, yaxis=yaxis)
+    makeDiameterAxis()
+    
     lines(m, r$jDOCprodPhoto*B, col="green", lwd=thick)
     lines(m, r$jDOCprodPassive*B, col="darkgreen", lwd=thick)
     lines(m, r$jDOCprodFeeding*B, col="red", lwd=thick)
@@ -1408,11 +1449,14 @@ plotHTL = function(d=dEutrophic, L=LEutrophic) {
   p$L = L
   mHTL = seq(0,0.5, length.out=25)
   
-  defaultplot(mfcol=c(2,1))
+  defaultplot(mfcol=c(2,1), oma=c(0, 0, 2.2, 0.5) + 0.1)
+  
+  
   loglogpanel(xlim=p$m, ylim=c(0.2,200), 
               xlab = 'Mass ($\\mu g_C$)',
               ylab = 'Sheldon biomass ($\\mu$g$_C$/l)')
   polygon(c(p$mHTL, 1, 1, p$mHTL), c(.2,.2,200,200), col=lightgrey, border=NA)
+  makeDiameterAxis()
   
   B = NA
   NPP = NA
@@ -1525,6 +1569,7 @@ plotTemperature = function(n=50) {
     for (i in seq(1,length(T),by=5))
       lines(p$m, Bsheldon[i,], lwd=1+i/length(T))
     makepanellabel()
+    makeDiameterAxis()
   }
   
   defaultplot(mfcol=c(3,2))

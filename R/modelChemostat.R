@@ -909,7 +909,7 @@ calcSheldonKappa = function(p) {
 #
 # Fitted kappa
 #
-calcSheldonFit = function(sim, bPlot=TRUE) {
+calcSheldonFit = function(sim, bPlot=TRUE, bXaxis=TRUE) {
   m = sim$p$m
   Delta = m[2]/m[1]
   B = sim$B/Delta
@@ -940,9 +940,14 @@ calcSheldonFit = function(sim, bPlot=TRUE) {
   
   if (bPlot) {
     #defaultplot()
+    if (bXaxis)
+      sXlab = "Carbon mass (${\\mu}$gC/l)"
+    else
+      sXlab = ""
+    
     loglogpanel(xlim=m, ylim=c(1e-3,400),
-                xlab="Carbon mass (${\\mu}$gC/l)",
-                ylab="Sheldon biomass ($\\mu$gC/l)")
+                xlab=sXlab,
+                ylab="Sheldon biomass ($\\mu$gC/l)", xaxis=bXaxis)
     B[B==Bmin]=1e-10
     lines(sim$p$m, B, lwd=3)
     #lines(m, rep(Bmean,sim$p$n),lwd=1)
