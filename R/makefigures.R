@@ -23,7 +23,7 @@ plotAll = function() {
   pdfplot("../Mumax.pdf", plotMumax, width = 1.5*singlewidth, height=1.5*height)
   pdfplot("../Rstar.pdf", plotRstar, width=singlewidth, height = height)
   #pdfplot("../Mumax_corrected.pdf", plotMuAlphaCorrelation, width = 1.5*singlewidth, height=1.5*height)
-  
+  pdfplot("../Cellshape.pdf", plotCellshape, width=singlewidth, height = height)
   plotSimulationExamples()
   
   pdfplot("../Strategies.pdf", plotStrategies, 
@@ -585,8 +585,36 @@ calcMufactor = function(p) {
   f0 = 0.6
   delta = (p$m[2]-p$m[1]) / sqrt(p$m[2]*p$m[1])
   cat("Delta = ", delta, "\n")
-  return( (1-f0) * p$AF *sqrt(2*pi)*p$sigma )
+  return( (1-f0) * p$A?F *sqrt(2*pi)*p$sigma )
 }
+
+plotCellshape = function() {
+  dat = read.csv('../data/cellshape.csv')
+  m = parameters()$rho * 10^(dat$x[seq(1,75,by=3)]) * 1e-6
+  nSpherical = dat$y[seq(1,75,by=3)]
+  nCylinder = dat$y[seq(2,75,by=3)] - nSpherical
+  nOther = dat$y[seq(3,75,by=3)] - nCylinder
+  
+  data <- as.matrix(data.frame(nSpherical, nCylinder, nOther))
+  
+  defaultplot()
+  midpoints = barplot(t(data)/sum(data),
+                      xlab = TeX("Cell mass (${\\mu}g_C$)"),
+                      ylab = "Frequency")
+  a = (midpoints[25]-midpoints[1]) / (log10(m[25])-log10(m[1])) 
+  b= midpoints[1] - a*log10(m[1])
+  axis(1, at=b+a*seq(-5,2), labels=10^seq(-5,2))
+  
+  legend(x="topright", cex=cex,
+         legend=c("Spher.","Cylin.","Other"),
+         fill=c(grey(0.2), grey(0.6),grey(0.9)),
+         border=c("black","black","black"),
+         lwd = c(0,0,0,0),
+         col=c(NA,NA,NA,NA),
+         bty="n"
+  )
+}
+
 
 panelStrategies = function(p,N,L,Bsheldon,DOC,y ,
                            ylabel,xlabel='',bXaxis=FALSE) {
