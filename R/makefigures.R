@@ -704,7 +704,7 @@ plotStrategies = function(n=50) {
   #
   # Plot of gains:
   #
-  defaultplot(mfcol=c(5,1))
+  defaultplot(mfcol=c(6,1))
   par(#cex.axis=cex,
       #cex.lab=cex,
       oma=c(0, 0, 2.2, 0.5) + 0.1)
@@ -729,11 +729,6 @@ plotStrategies = function(n=50) {
   makepanellabel()
   makeDiameterAxis()
   
-  # legend(x="topright", cex=cex,
-  #         legend=c("Light harvesting","Nutrient uptake","DOC uptake","Food consumption"),
-  #         col=c("green","blue","brown","red"),
-  #         lwd=c(2,2,2,2),
-  #         bty="n")
   #
   # The four strategy panels:
   #
@@ -749,6 +744,15 @@ plotStrategies = function(n=50) {
                   'DOC ($\\mu g_C/l$)','Cell mass ($\\mu g_C$)',
                   bXaxis=TRUE)
   hline(p$DOC0)
+  #
+  # Legend
+  #
+  legend(x="topright", cex=cex,
+           legend=c("Light harvesting","Nutrient uptake","DOC uptake","Food consumption"),
+           col=c("green","blue","brown","red"),
+           lwd=c(2,2,2,2),
+           bty="n")
+  
 }
 
 
