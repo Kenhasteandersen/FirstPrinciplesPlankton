@@ -410,13 +410,14 @@ plotMumax = function() {
                 ylab="max growth rate ($d^{-1}$)")
   makeDiameterAxis()#d=c(1,2,5,10,20,50,100,1000), labels=c("1","2","5","10","20","50","100","1000"))
   
+  cex=0.5
   #points(A$C[ixHeterotroph], A$mu_max[ixHeterotroph], pch=16, col="red")
-  points(A$C[ixMixotroph], A$mu_max[ixMixotroph], pch=16, col="blue")
-  points(A$C[A$taxon=="bacterivore"], A$mu_max[A$taxon=="bacterivore"], pch=1, col="blue", cex=.1)
-  points(A$C[A$taxon=="herbivore"], A$mu_max[A$taxon=="herbivore"], pch=1, col="red", cex=0.1)
-  points(A$C[ixPhototroph], A$mu_max[ixPhototroph], pch=16, col="green")
-  points(A$C[ixDiatom], A$mu_max[ixDiatom], pch=16, col="darkgreen")
-  points(A$C[ixBacteria], A$mu_max[ixBacteria], pch=1, col="brown", cex=0.1)
+  points(A$C[ixMixotroph], A$mu_max[ixMixotroph], pch=16, col="blue", cex=cex)
+  points(A$C[A$taxon=="bacterivore"], A$mu_max[A$taxon=="bacterivore"], pch=16, col="blue", cex=cex)
+  points(A$C[A$taxon=="herbivore"], A$mu_max[A$taxon=="herbivore"], pch=16, col="red", cex=cex)
+  points(A$C[ixPhototroph], A$mu_max[ixPhototroph], pch=16, col="green", cex=cex)
+  points(A$C[ixDiatom], A$mu_max[ixDiatom], pch=16, col="darkgreen", cex=cex)
+  points(A$C[ixBacteria], A$mu_max[ixBacteria], pch=16, col="brown", cex=cex)
   
   
   C = 10^seq(-9, log10(max(A$C)), length.out = 100)
