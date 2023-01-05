@@ -679,6 +679,9 @@ panelStrategies = function(p,N,L,Bsheldon,DOC,y ,
               xaxis=bXaxis,
               new=TRUE)
   makepanellabel()
+  
+  
+  
   #image(p$m, y, t(col), log="xy", col=color)
 }
 
@@ -747,11 +750,13 @@ plotStrategies = function(n=50) {
   #
   # Legend
   #
-  legend(x="topright", cex=cex,
-           legend=c("Light harvesting","Nutrient uptake","DOC uptake","Food consumption"),
-           col=c("green","blue","brown","red"),
-           lwd=c(2,2,2,2),
-           bty="n")
+  defaultpanel(xlim=c(0,1), ylim=c(0,1), xaxis = FALSE, yaxis = FALSE, bty="n")
+  legend(x="topright", cex=cex, bty="n",
+         legend=c("Osmoheterotrophs", "Light limited photo.","N limited phototrophs","Mixotrophs","Heterotrophs"),
+         fill=c(colOsmo, colPhoto, colN, colMixo, colHetero),
+         border=c("black","black","black","black","black"),
+         lwd = c(0,0,0,0),
+         col=c(NA,NA,NA,NA))
   
 }
 
@@ -1246,7 +1251,7 @@ plotSheldonComparison = function(L = 100, n=20) {
     if (i == iSamples[1]) 
       makeDiameterAxis()
       
-    makepanellabel()
+    makepanellabel(label=paste( letters[iPlot], sprintf("   d=%5.4f/day",d[i])) )
         # ylab=""
     # if (i==2)
     #   ylab="Sheldon spectrum (${$gC/l)"
@@ -1465,7 +1470,7 @@ plotBacteriaGenerationTime_vs_area = function(p=parametersChemostat(),
   
   defaultplot()
   defaultpanel(xlim=area[,], ylim=c(0,50),
-               xlab = "Particle surface area ($\\mu$m$^2$/l)",
+               xlab = "Plankton surface area ($\\mu$m$^2$/l)",
                ylab = "Bacterial generation time (d)")
   points(area[,], gentime[,], pch=dots)
   
@@ -1490,6 +1495,7 @@ plotHTL = function(d=dEutrophic, L=LEutrophic) {
               ylab = 'Sheldon biomass ($\\mu$g$_C$/l)')
   polygon(c(p$mHTL, 1, 1, p$mHTL), c(.2,.2,200,200), col=lightgrey, border=NA)
   makeDiameterAxis()
+  makepanellabel()
   
   B = NA
   NPP = NA
@@ -1508,14 +1514,15 @@ plotHTL = function(d=dEutrophic, L=LEutrophic) {
   }
   ribbon(x=p$m, ymin=0*p$m+0.01, ymax=10^(p$mortHTLm-2))
   
-  defaultpanel(xlim=mHTL, ylim=c(0,100*floor(2.2*max(NPP)/100)+1),
+  defaultpanel(xlim=mHTL, ylim=c(0,120*floor(2.2*max(NPP)/100)+1),
                xlab="Higher trophic level mortality $\\mu_{htl}$ (day$^{-1}$)")
   
   lines(mHTL, B, lwd=2)
   lines(mHTL, NPP, col='green', lwd=2)
   lines(mHTL, prodHTL, col='red',lwd=2)
+  makepanellabel()
   
-  legend(x="topleft", bty="n", cex=0.8*cex,
+  legend(x="topright", bty="n", cex=0.8*cex,
          legend=c(TeX('Biomass (${\\mu}g_C$/l)'), 
                   TeX('NPP ($g_C/yr/m^2$)'), 
                   TeX('prod. HTL ($g_C/yr/m^2$)')),
@@ -1564,14 +1571,18 @@ plotTemperature = function(n=50) {
     semilogypanel(xlim=T,ylim=c(0.02,2),
                   ylab=ylab, xaxis=FALSE, yaxis=bLegend)
     # Reference lines:
-    lines(T, 0.3*fTemp(1.25,T,0),col="red")
-    lines(T, 0.3*fTemp(1.5,T,0),col="red")
-    lines(T, 0.3*fTemp(2,T,0),col="red")
+    lines(T, 0.3*fTemp(1.25,T,0),col="red",lty=dotted)
+    lines(T, 0.3*fTemp(1.5,T,0),col="red",lty=dotted)
+    lines(T, 0.3*fTemp(2,T,0),col="red",lty=dotted)
     # Actual growth responses:
     ix = seq(7,45,by=10)
     for (i in 1:length(ix))
       lines(T, jTot[,ix[i]], lwd=i/2)
     makepanellabel()
+    if (bLegend) {
+      text(x=10, y=0.25, labels=TeX("$Q_{10}$=1.25"), cex=0.8*cex, col="red")
+      text(x=10, y=0.95, labels=TeX("$Q_{10}$=2"), cex=0.8*cex, col="red")
+    }
     #
     # Functions:
     #
