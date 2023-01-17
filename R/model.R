@@ -28,7 +28,7 @@ parameters <- function(n=25, mmin10=-8.5, mmax10=0) {
   #
   #factor = (1e-6)^(1/3)/1.5 
   p$aN = 0.972 #0.682 #  L/d/mugC/mum^2.   0.00012 #0.00004 # 0.000162 # Mathilde.  (2.5e-3 l/d/cm) * (1e6 mug/g)^(-1/3) / 1.5 (g/cm); Andersen et al 2015
-  p$rNstar = .75 # mum
+  p$rNstar = .4 # mum
   #p$AL = 0.0019 # if using Al propto m^(2/3) for non-diatoms
   #p$AL = 0.0012 # if using my shading formula for non-diatoms
   #p$cL = 0.021 # if using my shading formula for non-diatoms

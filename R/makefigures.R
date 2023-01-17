@@ -1067,7 +1067,7 @@ plotFunctions = function(L=c(10, 100), n=10) {
     # Concentrations:
     if (yaxis)
       ylab = "Concentrations"
-    loglogpanel(xlim=d, ylim=c(0.01,5000), xaxis=FALSE, yaxis=yaxis,
+    loglogpanel(xlim=d, ylim=c(0.005,5000), xaxis=FALSE, yaxis=yaxis,
                 ylab=ylab)
     lines(F$d, F$N/14, lwd=2, col="blue")
     lines(F$d, F$DOC/12, lwd=2, col="brown")
@@ -1213,10 +1213,10 @@ plotGridtest = function() {
 }
 
 
-plotSheldonComparison = function(L = 100, n=20) {
+plotSheldonComparison = function(L = 100, n=50) {
   p = parametersChemostat(parameters())
   p$L = L
-  d = 10^seq(log10(3.1e-4),0,length=n)
+  d = 10^seq(log10(0.5e-4),0,length=n)
   Delta = log(p$m[2]/p$m[1])
   #
   # Run across a range of d:
@@ -1240,7 +1240,7 @@ plotSheldonComparison = function(L = 100, n=20) {
   #
   # Three examples:
   #
-  iSamples = c(3,9,17)
+  iSamples = c(6,22,42) # c(3,9,17)
   for (i in iSamples) {
     #loglogpanel(xlim=p$m, ylim=c(1e-3,10))
     if (i == iSamples[3])
