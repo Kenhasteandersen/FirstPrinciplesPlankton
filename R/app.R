@@ -35,7 +35,7 @@ uiChemostat <- fluidPage(
     The trophic strategy (the background colours) is an emergent property.'),
   p('Documentation in:',
     a("Andersen and Visser (2023)",href="https://www.biorxiv.org/content/10.1101/2022.05.16.492092v2"),'.'),
-  p('Revised version 1.1, January 2023.')
+  p('Published version 1.1, January 2023.')
   ,
   # Sidebar with a slider inputs
   sidebarLayout(

@@ -8,4 +8,4 @@ R code to produce the figures:
  * model.R. Core routines for the unicellular model.
  * basetools.R. Plotting routines.
  * matlab: code to run the two figures with the water column and global setups
- * lib: Pre-compiled versions of the NUMmodel library needed to do the simulations. Note that you need to rename the library to fit your operating system.
+ * lib: Pre-compiled versions of the NUMmodel library needed to do the simulations. If they do not work then get the source code https://github.com/Kenhasteandersen/NUMmodel/releases/tag/v0.91 and compile yourself.
