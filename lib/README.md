@@ -6,4 +6,4 @@ Linux: Should work if gcc is installed
 
 Windows: requires gfortran
 
-If these do not work then download the NUMmodel library release 0.91 and compile yourself (https://github.com/Kenhasteandersen/NUMmodel).
+If these do not work then download the NUMmodel library tag v0.91 and compile yourself (https://github.com/Kenhasteandersen/NUMmodel).
